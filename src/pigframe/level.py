@@ -5,6 +5,8 @@ class LevelManager():
         self.__scenes_events: dict[dict] = {}
         self.__scenes_map: dict[dict] = {}
         self.current_scene = None
+        self.next_scene = None
+        self.prev_scene = None
         
     def add_scenes(self, scenes: list[str]) -> None:
         for scene in scenes:
@@ -50,7 +52,8 @@ class LevelManager():
     
     def update_scene(self):
         self.prev_scene = self.current_scene
-        self.current_scene = self.next_scene
+        if self.next_scene is not None:
+            self.current_scene = self.next_scene
 
     @property
     def to(self):

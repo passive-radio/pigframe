@@ -38,9 +38,10 @@ class Event(System):
         self.event_name = event_name
         
     def process(self):
-        if self.world.level_manager.scenes_events[self.world.current_scene][self.event_name]["run"] != 0:
+        if self.world.level_manager.scenes_events[self.world.current_scene][self.event_name]["run"] != 1:
             return
         
+        print("process event!: ", self.event_name)
         self.__process()
         self.world.level_manager.scenes_events[self.world.current_scene][self.event_name]["run"] = 0
         
@@ -211,6 +212,34 @@ class World():
         """
         self.level_manager.add_scenes(scenes)
         
+    def add_scene_map(self, scene: str, to: str, triger: callable):
+        """Add a scene transition to world.
+
+        Parameters
+        ----------
+        scene : str
+            name of scene
+        to : str
+            name of scene to be transitioned
+        triger : callable
+            triger of transition
+        """
+        self.level_manager.add_scene_map(scene, to, triger)
+        
+    def add_scene_events_map(self, scene: str, event_name: str, triger: callable):
+        """Add an event info to a scene of world.
+
+        Parameters
+        ----------
+        scene : str
+            name of scene
+        event_name : str
+            name of event
+        triger : callable
+            triger of event
+        """
+        self.level_manager.add_scene_events(scene, event_name, triger)
+        
     def add_scene_system(self, system, scenes: list[str], priority: int = 0):
         """Add a system to scenes of world. Be sure you have added scenes before adding systems.
 
@@ -293,19 +322,20 @@ class World():
         scenes = self.scenes
         self.add_scene_screen(screen, scenes, priority)
         
-    def add_scene_event(self, event: Event, priority: int = 0):
+    def add_scene_event(self, event: Event, scene: str, priority: int = 0):
         """Add an event to a scene of world. Be sure you have added scenes before adding events.
 
         Parameters
         ----------
         event : Event
             event to be added
+        scene : str
+            scene where the event is executed
         priority : int, optional
             event with its lower priority than the other events is executed in advance., by default 0
         """
         event.priority = priority
         
-        scene = event.scene
         if self.scene_events.get(scene) is None:
             self.scene_events.update({scene: []})
         self.scene_events[scene].append(event)
@@ -327,6 +357,8 @@ class World():
     def process_systems(self):
         """Process all systems in the current scene of world. Be sure you have added scenes before processing systems.
         """
+        if self.scene_systems.get(self.current_scene) is None:
+            return
         for system in self.scene_systems[self.current_scene]:
             system: System
             system.process()
@@ -334,11 +366,15 @@ class World():
     def draw_screens(self):
         """Draw all screens in the current scene of world. Be sure you have added scenes before drawing screens.
         """
+        if self.scene_screens.get(self.current_scene) is None:
+            return
         for screen in self.scene_screens[self.current_scene]:
             screen: Screen
             screen.draw()
             
     def process_events(self):
+        if self.scene_events.get(self.current_scene) is None:
+            return
         for event in self.scene_events[self.current_scene]:
             event: Event
             event.process()
