@@ -2,8 +2,9 @@ version = '0.0.1'
 
 class LevelManager():
     def __init__(self) -> None:
-        self.__scenes_events = {}
-        self.__scenes_map = {}
+        self.__scenes_events: dict[dict] = {}
+        self.__scenes_map: dict[dict] = {}
+        self.current_scene = None
         
     def add_scenes(self, scenes: list[str]) -> None:
         for scene in scenes:
@@ -16,17 +17,11 @@ class LevelManager():
             self.__scenes_events.update({scene: {}})
             self.__scenes_map.update({scene: {}})
     
-    def add_scene_events(self, scene: str, event: str, triger: callable) -> None:
+    def add_scene_events(self, scene: str, event_name: str, triger: callable) -> None:
         if self.__scenes_events.get(scene) is None:
             self.__scenes_events.update({scene: {}})
         
-        self.__scenes_events[scene].update({event: {"triger": triger, "run": 0}})
-        # self.scenes_events: dict[dict] = {"launch": {"launch": 0, "start-playing": 0},
-        #     "choose-difficulty": {"choose-difficulty": 0, "start-playing": 0},
-        #     "start-playing": {"start-timer": 0},
-        #     "main": {"main": 0, "update-resources": 0, "cal-result": 0},
-        #     "result": {"difficulty-up": 0},
-        #     "update-resources": {"update-resources": 0}}
+        self.__scenes_events[scene].update({event_name: {"triger": triger, "run": 0}})
         
     def add_scene_map(self, scene: str, to: str, triger: callable) -> None:
         if self.__scenes_map.get(scene) is None:
@@ -36,6 +31,26 @@ class LevelManager():
         
     def update_scene_event(self, scene, event, run: int):
         self.__scenes_events[scene][event]["run"] = run
+        
+    def process(self):
+        self.__process_events()
+        self.__process_transitions()
+        self.update_scene()
+        
+    def __process_events(self):
+        for event, event_data in self.__scenes_events[self.current_scene].items():
+            if event_data["triger"]():
+                self.update_scene_event(self.current_scene, event, 1)
+    
+    def __process_transitions(self):
+         for scene, triger in self.__scenes_map[self.current_scene].items():
+            if triger():
+                self.next_scene = scene
+                return
+    
+    def update_scene(self):
+        self.prev_scene = self.current_scene
+        self.current_scene = self.next_scene
 
     @property
     def to(self):
