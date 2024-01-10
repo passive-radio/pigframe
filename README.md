@@ -1,6 +1,8 @@
 ## Pigframe
 ![Pigframe](docs/images/pigframe-logo-rectangle-200x99.jpg)
 
+<b>[日本語版 README](docs/README-ja.md)</b>
+
 <b>Pigframe</b> is a minimum Python-based game-engine backend library, designed to simplify and streamline the development process of game applications. Engineered with flexibility and ease of use in mind, Pigframe provides a robust set of tools and functions that enable developers to create immersive and dynamic gaming experiences.
 
 #### Key Features:
@@ -31,7 +33,7 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
     from pigframe.world import World, System, Event, Screen, Component
     ```
 
-- create your own world class which has entities, components, systems, screens. It is the core of the game.
+- create your own world class which has entities, components, systems, events and screens. It is the core of the game.
     ```python
     # Implement World class for your own project.
     class App(World):
