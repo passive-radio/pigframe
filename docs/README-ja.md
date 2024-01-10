@@ -1,5 +1,5 @@
 ## Pigframe
-![Pigframe](docs/images/pigframe-logo-rectangle-200x99.jpg)
+![Pigframe](https://github.com/passive-radio/pigframe/blob/main/docs//images/pigframe-logo-rectangle-200x99.jpg)
 
 <b>[English](../README.md)</b>
 
