@@ -20,6 +20,32 @@ class System():
         
     def process(self):
         pass
+
+class Event(System):
+    def __init__(self, world, event_name: str, priority: int = 0) -> None:
+        """Event is a class which has a process method. The process method is executed when the event is trigered.
+
+        Parameters
+        ----------
+        world : World
+            World object
+        event_name : str
+            name of event
+        priority : int, optional
+            event with its lower priority than the others events is executed in advance., by default 0
+        """
+        super().__init__(world, priority)
+        self.event_name = event_name
+        
+    def process(self):
+        if self.world.level_manager.scenes_events[self.world.current_scene][self.event_name]["run"] != 0:
+            return
+        
+        self.__process()
+        self.world.level_manager.scenes_events[self.world.current_scene][self.event_name]["run"] = 0
+        
+    def __process(self):
+        pass
     
 class Screen():
     def __init__(self, world, priority: int = 0) -> None:
@@ -52,6 +78,7 @@ class World():
         self.next_entity_id = 0
         self.scene_systems: dict[list[System]] = {}
         self.scene_screens: dict[list[Screen]] = {}
+        self.scene_events: dict[list[Event]] = {}
         self._get_component_cache = {}
         self._get_components_cache = {}
         self.running = True
@@ -266,19 +293,60 @@ class World():
         scenes = self.scenes
         self.add_scene_screen(screen, scenes, priority)
         
+    def add_scene_event(self, event: Event, priority: int = 0):
+        """Add an event to a scene of world. Be sure you have added scenes before adding events.
+
+        Parameters
+        ----------
+        event : Event
+            event to be added
+        priority : int, optional
+            event with its lower priority than the other events is executed in advance., by default 0
+        """
+        event.priority = priority
+        
+        scene = event.scene
+        if self.scene_events.get(scene) is None:
+            self.scene_events.update({scene: []})
+        self.scene_events[scene].append(event)
+        self.scene_events[scene] = sorted(self.scene_events[scene], key=lambda x: x.priority)
+        
+    def add_event(self, event: Event, priority: int = 0):
+        """Add an event to all scenes of world. Be sure you have added scenes before adding events.
+
+        Parameters
+        ----------
+        event : Event
+            event to be added
+        priority : int, optional
+            event with its lower priority than the other events is executed in advance., by default 0
+        """
+        scenes = self.scenes
+        self.add_scene_event(event, scenes, priority)
+        
     def process_systems(self):
         """Process all systems in the current scene of world. Be sure you have added scenes before processing systems.
         """
-        for system in self.scene_systems[self.level_manager.current_scene]:
+        for system in self.scene_systems[self.current_scene]:
             system: System
             system.process()
             
     def draw_screens(self):
         """Draw all screens in the current scene of world. Be sure you have added scenes before drawing screens.
         """
-        for screen in self.scene_screens[self.level_manager.current_scene]:
+        for screen in self.scene_screens[self.current_scene]:
             screen: Screen
             screen.draw()
+            
+    def process_events(self):
+        for event in self.scene_events[self.current_scene]:
+            event: Event
+            event.process()
+            
+    def process(self):
+        self.process_systems()
+        self.level_manager.process()
+        self.process_events()
         
     def has_component(self, entity: int, component_type: Component):
         """Check if an entity has a component.
@@ -368,7 +436,27 @@ class World():
             for screen in self.scene_screens[scene]:
                 if type(screen) is screen_type:
                     self.scene_screens[scene].remove(screen)
-                    
+    
+    def remove_event_from_scene(self, event_type: type(Event), scenes: list[str] | str):
+        """Remove an event from scenes of world.
+
+        Parameters
+        ----------
+        event_type : type
+            type of event to be removed
+        scenes : list[str] | str
+            scenes where the event is removed
+        """
+        if type(scenes) == str:
+            scenes = [scenes]
+        
+        for scene in scenes:
+            if self.scene_events.get(scene) is None:
+                assert("scene not found!")
+                continue
+            for event in self.scene_events[scene]:
+                if type(event) is event_type:
+                    self.scene_events[scene].remove(event)
         
     @property
     def scenes(self):
@@ -404,6 +492,17 @@ class World():
         return self.level_manager.next_scene
     
     @property
+    def prev_scene(self):
+        """Return previous scene of world.
+
+        Returns
+        -------
+        _type_
+            str: previous scene name
+        """
+        return self.level_manager.prev_scene
+    
+    @property
     def current_systems(self):
         """Return systems of current scene of world.
 
@@ -424,6 +523,17 @@ class World():
             list[Screen]: screens of current scene
         """
         return self.scene_screens[self.current_scene]
+    
+    @property
+    def current_events(self):
+        """Return events of current scene of world.
+
+        Returns
+        -------
+        _type_
+            list[Event]: events of current scene
+        """
+        return self.scene_events[self.current_scene]
     
     @property
     def systems(self):
