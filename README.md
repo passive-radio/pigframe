@@ -23,3 +23,134 @@ pip install pigframe
 
 #### Contributing:
 Contributions to Pigframe are welcome! Whether it's bug reports, feature requests, or code contributions, your input is valuable in making Pigframe better for everyone.
+
+#### User guide
+
+- import module
+    ```python
+    from pigframe.world import World, System, Event, Screen, Component
+    ```
+
+- create your own world class which has entities, components, systems, screens. It is the core of the game.
+    ```python
+    # Implement World class for your own project.
+    class App(World):
+        def __init__(self):
+            super().__init__()
+            self.init() # write initial process which is unique to the game engine and the game you develop.
+        
+        ... # other game engine unique methods.
+    
+    app = App()
+    ```
+
+- create and remove entity
+    ```python
+    # Create entity to world.
+    entity = app.create_entity() # -> int: entity ID
+    # Remove entity from world.
+    app.remove_entity(entity) # deletes from entites list
+    ```
+
+- use component values inside system, event and screen
+    ```python
+    # Example of using get_components() method.
+    class SystemA(System):
+        def process(self):
+            for ent, (component_a, component_b) in self.world.get_components(ComponentA, ComponentB):
+                """
+                Returns
+                -------
+                list: list of tuple: entity id, list of components
+                """
+                component_a.x += component_b.x
+                component_a.y += component_b.x
+    ```
+
+- use entity
+    ```python
+    # Example of using entity object
+    class EventA(Event):
+        def __process(self):
+            player = self.world.get_entity_object(entity = 0)
+            """
+            Returns
+            -----------
+            dict: entity object
+                key: component type
+                value: component
+            """
+    ```
+
+- add components to entity
+    ```python
+    # Add component to entity ID.
+    # Components are recorded as values where entity ID is the key inside dict.
+    app.add_component_to_entity(entity, ComponentA(some_args))
+    app.add_component_to_entity(entity, ComponentB(some_args))
+    # getter
+    app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component implementation. 
+    app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component implementations. 
+    ```
+
+- add scenes to world
+    ```python
+    # Add scenes to world.
+    app.add_scenes(["launch", "game", "result", "settings"])
+    # scenes getter
+    app.sceneces # -> [["launch", "game", "result", "settings"]
+    ```
+
+- add/remove system to/from world
+    ```python
+    # Add screen to a scene of world. Be sure you have added scenes before adding screens.
+    app.add_scene_system(SystemA(app), "launch", priority = 0)
+    # system with its lower priority than the other systems is executed in advance., by default 0.
+    # For here, SystemA().process() runs first in "launch" scene.
+    app.add_scene_system(SystemA(app), "game", priority = 0)
+    app.add_scene_system(SystemB(app), "launch", priority = 1)
+    # Remove system from scene.
+    app.remove_system_from_scene(SystemA, ["launch", "game"])
+    ```
+
+- add/remove screen to/from world
+    ```python
+    # Add screen to a scene of world. Be sure you have added scenes before adding screens.
+    app.add_scene_screen(ScreenA(app), "launch", priority = 0)
+    app.add_scene_screen(ScreenB(app), "launch", priority = 0)
+    app.add_scene_screen(ScreenC(app), "game", priority = 0)
+    # Remove screen from scene.
+    app.remove_screen_from_scene(ScreenB, "launch")
+    ```
+
+- add/remove event to/from world
+    ```python
+    # Add an event to a scene of world. Be sure you have added scenes before adding events.
+    app.add_scene_event(EventA(app), "game", priority = 0)
+    # Remove event from scene.
+    app.remove_event_from_scene(EventA, "game")
+    ```
+
+- add scene transitions settings
+    ```python
+    app.add_scene_map(scene = "launch", to = "game", triger = callable_triger)
+    # triger has to be callable.
+    ```
+
+- add event triger
+    ```python
+    app.add_scene_events_map(scene = "game", event_name = "event name", triger = callable_triger)
+    # triger has to be callable
+    ```
+
+- execute systems, events and draw screens
+    ```python
+    app.process_systems() # execute systems of current scene.
+    app.process_events() # execute events of current scene.
+    app.draw_screens() # execute screens of current scene.
+    ```
+
+#### Examples
+| game engine | example |
+| ---- | ----|
+| Pyxel | https://github.com/passive-radio/pigframe/tree/main/examples/control_a_ball |
