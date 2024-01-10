@@ -1,3 +1,5 @@
+version = '0.0.1'
+
 class LevelManager():
     def __init__(self) -> None:
         self.__scenes_events = {}

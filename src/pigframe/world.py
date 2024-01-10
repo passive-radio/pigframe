@@ -1,8 +1,8 @@
 from typing import Type
 from dataclasses import dataclass
-from level import LevelManager
+from .level import LevelManager
 
-version = '0.1.dev'
+version = '0.0.1'
 
 class System():
     def __init__(self, world, priority: int = 0) -> None:
@@ -50,7 +50,6 @@ class World():
         self.components = {}
         self.entities = {}
         self.next_entity_id = 0
-        self.systems = {}
         self.scene_systems: dict[list[System]] = {}
         self.scene_screens: dict[list[Screen]] = {}
         self._get_component_cache = {}
@@ -226,13 +225,57 @@ class World():
         scenes = self.scenes
         self.add_scene_system(system, scenes, priority)
         
-    def process(self):
-        """Process all systems and screens in the current scene of world. Be sure you have added scenes before processing systems, screens.
+    def add_scene_screen(self, screen, scenes: list[str], priority: int = 0):
+        """Add a screen to scenes of world. Be sure you have added scenes before adding screens.
+
+        Parameters
+        ----------
+        screen : Screen
+            screen to be added
+        scenes : list[str], optional
+            scenes where the screen is executed, by default None
+        priority : int, optional
+            screen with its lower priority than the other screens is executed in advance., by default 0
+        """
+        screen.priority = priority
+        
+        if type(scenes) == str:
+            scene = scenes
+            if self.scene_screens.get(scene) is None:
+                self.scene_screens.update({scene: []})
+            self.scene_screens[scene].append(screen)
+            self.scene_screens[scene] = sorted(self.scene_screens[scene], key=lambda x: x.priority)
+            return
+        
+        for scene in scenes:
+            if self.scene_screens.get(scene) is None:
+                self.scene_screens.update({scene: []})
+            self.scene_screens[scene].append(screen)
+            self.scene_screens[scene] = sorted(self.scene_screens[scene], key=lambda x: x.priority)
+            
+    def add_screen(self, screen, priority: int = 0) -> None:
+        """Add a screen to all scenes of world. Be sure you have added scenes before adding screens.
+
+        Parameters
+        ----------
+        screen : Screen
+            screen to be added
+        priority : int, optional
+            screen with its lower priority than the other screens is executed in advance., by default 0
+        """
+        scenes = self.scenes
+        self.add_scene_screen(screen, scenes, priority)
+        
+    def process_systems(self):
+        """Process all systems in the current scene of world. Be sure you have added scenes before processing systems.
         """
         for system in self.scene_systems[self.level_manager.current_scene]:
             system: System
             system.process()
-        
+            
+    def draw_screens(self):
+        """Draw all screens in the current scene of world. Be sure you have added scenes before drawing screens.
+        """
         for screen in self.scene_screens[self.level_manager.current_scene]:
             screen: Screen
             screen.draw()
@@ -267,12 +310,12 @@ class World():
             
         del self.entities[entity]
         
-    def remove_system_from_scene(self, system_type: Type(System), scenes: list[str] | str):
+    def remove_system_from_scene(self, system_type: type(System), scenes: list[str] | str):
         """Remove a system from scenes of world.
 
         Parameters
         ----------
-        system_type : Type
+        system_type : type
             type of system to be removed
         scenes : list[str] | str
             scenes where the system is removed
@@ -288,12 +331,12 @@ class World():
                 if type(system) is system_type:
                     self.scene_systems[scene].remove(system)
     
-    def remove_system(self, system_type: Type(System)):
+    def remove_system(self, system_type: type(System)):
         """Remove a system from all scenes of world.
 
         Parameters
         ----------
-        system_type : Type(System)
+        system_type : type(System)
             type of system to be removed
         """
         scenes = self.scenes
@@ -305,12 +348,12 @@ class World():
                 if type(system) is system_type:
                     self.scene_systems[scene].remove(system)
                     
-    def remove_screen_from_scene(self, screen_type: Type(Screen), scenes: list[str] | str):
+    def remove_screen_from_scene(self, screen_type: type(Screen), scenes: list[str] | str):
         """Remove a screen from scenes of world.
 
         Parameters
         ----------
-        screen_type : Type
+        screen_type : type
             type of screen to be removed
         scenes : list[str] | str
             scenes where the screen is removed
@@ -403,3 +446,14 @@ class World():
             dict[list[Screen]]: screens of world
         """
         return self.scene_screens
+    
+    @current_scene.setter
+    def current_scene(self, scene: str):
+        """Set current scene of world.
+
+        Parameters
+        ----------
+        scene : str
+            name of scene
+        """
+        self.level_manager.current_scene = scene
