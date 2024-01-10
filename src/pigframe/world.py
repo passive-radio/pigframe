@@ -2,7 +2,7 @@ from typing import Type
 from dataclasses import dataclass
 from .level import LevelManager
 
-version = '0.0.1'
+version = '0.0.2'
 
 class System():
     def __init__(self, world, priority: int = 0) -> None:
