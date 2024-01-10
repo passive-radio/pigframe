@@ -1,0 +1,15 @@
+include \
+    LICENSE \
+    README.md \
+    setup.py \
+    MANIFEST.in \
+
+graft docs
+graft tests
+
+global-exclude .gitignore
+
+prune .git
+prune .github
+prune __pycache__
+prune .venv
