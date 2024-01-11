@@ -6,8 +6,9 @@ class ScLaunch(Screen):
         
     def draw(self):
         pyxel.cls(15)
-        pyxel.text(100, 100, "Hello World!", self.world.frame_count // 8 % 16)
+        pyxel.text(100, 100, "Hello World!", self.world.frame_count // (self.world.FPS // 2) % 16)
         pyxel.text(85, 120, "Press SPACE to start", 7)
+        pyxel.text(91, 132, "Press ESC to quit", 7)
     
 class ScGame(Screen):
     

@@ -42,4 +42,3 @@ class SysControlVelocity(System):
                 vel.dx = vel.dx * 0.8
             if not pyxel.btn(pyxel.KEY_W) and not pyxel.btn(pyxel.KEY_S):
                 vel.dy = vel.dy * 0.8
-                
