@@ -88,8 +88,9 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
     ```python
     # Add component to entity ID.
     # Components are recorded as values where entity ID is the key inside dict.
-    app.add_component_to_entity(entity, ComponentA(some_args))
-    app.add_component_to_entity(entity, ComponentB(some_args))
+    # Component instance are created automatically.
+    app.add_component_to_entity(entity, ComponentA, component_args) # ComponentA is not an instance of Component but type.
+    app.add_component_to_entity(entity, ComponentB, component_args) # ComponentB is not an instance of Component but type.
     # getter
     app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component implementation. 
     app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component implementations. 
@@ -106,53 +107,79 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
 - add/remove system to/from world
     ```python
     # Add screen to a scene of world. Be sure you have added scenes before adding screens.
-    app.add_scene_system(SystemA(app), "launch", priority = 0)
+    # System instance are created automatically.
+    app.add_system_to_scenes(SystemA, "launch", priority = 0, system_args)
     # system with its lower priority than the other systems is executed in advance., by default 0.
     # For here, SystemA().process() runs first in "launch" scene.
-    app.add_scene_system(SystemA(app), "game", priority = 0)
-    app.add_scene_system(SystemB(app), "launch", priority = 1)
+    app.add_system_to_scenes(SystemA, "game", priority = 0, system_args)
+    app.add_system_to_scenes(SystemB, "launch", priority = 1)
     # Remove system from scene.
-    app.remove_system_from_scene(SystemA, ["launch", "game"])
+    app.remove_system_from_scene(SystemA, ["launch", "game"], system_args = system_args)
     ```
 
 - add/remove screen to/from world
     ```python
     # Add screen to a scene of world. Be sure you have added scenes before adding screens.
-    app.add_scene_screen(ScreenA(app), "launch", priority = 0)
-    app.add_scene_screen(ScreenB(app), "launch", priority = 0)
-    app.add_scene_screen(ScreenC(app), "game", priority = 0)
+    # Screen instance are created automatically.
+    app.add_screen_to_scenes(ScreenA, "launch", priority = 0)
+    app.add_screen_to_scenes(ScreenB, "launch", priority = 0)
+    app.add_screen_to_scenes(ScreenC, "game", priority = 0, screen_args)
     # Remove screen from scene.
     app.remove_screen_from_scene(ScreenB, "launch")
     ```
 
 - add/remove event to/from world
     ```python
-    # Add an event to a scene of world. Be sure you have added scenes before adding events.
-    app.add_scene_event(EventA(app), "game", priority = 0)
+    # Add an event, event triger to a scene of world. Be sure you have added scenes before adding events.
+    app.add_event_to_scene(EventA, "game", callable_triger, priority = 0)
     # Remove event from scene.
     app.remove_event_from_scene(EventA, "game")
     ```
 
 - add scene transitions settings
     ```python
-    app.add_scene_map(scene = "launch", to = "game", triger = callable_triger)
+    app.add_scene_transition(scene_from = "launch", scene_to = "game", triger = callable_triger)
     # triger has to be callable.
-    ```
-
-- add event triger
-    ```python
-    app.add_scene_events_map(scene = "game", event_name = "event name", triger = callable_triger)
-    # triger has to be callable
     ```
 
 - execute systems, events and draw screens
     ```python
-    app.process_systems() # execute systems of current scene.
-    app.process_events() # execute events of current scene.
-    app.draw_screens() # execute screens of current scene.
+    # Pyxel Example
+    class App(World):
+        ...
+
+        def run(self):
+            pyxel.run(self.update, self.draw)
+
+        def update(self):
+            self.process() # World class has process method.
+            # process method calls these internal methods below.
+            # 1. process_systems()
+            # 1. process_events()
+            # 1. level_manager.process()
+
+        def draw(self):
+            self.process_screens()
+    ```
+
+    ```python
+    # Pygame Example
+    class App(World):
+        ...
+        
+        def run(self):
+            while self.running:
+                self.update()
+                self.draw()
+                
+        def update(self):
+            self.process()
+        
+        def draw(self):
+            self.process_screens()
     ```
 
 #### Examples
-| game engine | example |
-| ---- | ----|
-| Pyxel | https://github.com/passive-radio/pigframe/tree/main/examples/control_a_ball |
+| game engine | example | contents |
+| ---- | ----| ---- |
+| Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/examples/control_a_ball) | examples of system, event, component, entity and world implementations |
