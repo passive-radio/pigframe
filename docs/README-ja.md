@@ -3,28 +3,28 @@
 
 <b>[English](../README.md)</b>
 
-<b>Pigframe</b>は、ゲームアプリケーションの開発プロセスを簡素化し、合理化することを目的とした、最小限のPythonベースのゲームエンジンバックエンドライブラリです。柔軟性と使いやすさを念頭に置いて設計されたPigframeは、開発者が没入型でダイナミックなゲーム体験を作り出すための堅牢なツールと機能を提供します。
+<b>Pigframe</b>は、ゲームアプリケーションをより簡単に、ルールベースに開発できるようにすることを目的とした、ミニマムな Python 製のゲーム開発用フレームワークです。Pigframe は柔軟性と使いやすさを念頭に置いて設計されており、開発者がゲーム体験を作り出すために基本となる堅牢な機能を提供します。
 
 #### 主な特徴:
-- <b>コンポーネントベースのアーキテクチャ</b>: Pigframeはコンポーネントベースのアプローチを採用し、モジュラーでスケーラブルなゲーム開発を可能にします。このアーキテクチャは、ゲーム要素の簡単な追加、変更、管理を容易にします。
+- <b>コンポーネントベースのアーキテクチャ</b>: Pigframe はコンポーネントベースのアプローチを採用し、モジュラーでスケーラブルなゲーム開発を可能にします。このアーキテクチャは、ゲーム要素の簡単な追加、変更、管理を容易にします。
 
-- <b>直感的なシーン管理</b>: Pigframeの直感的なシーン遷移と制御システムで、ゲームシーンをシームレスに管理します。この機能により、スムーズな遷移と効率的なシーンの整理が可能になります。
+- <b>直感的なシーン管理</b>: Pigframe の直感的なシーン遷移と制御システムで、ゲームシーンをシームレスに管理します。この機能により、スムーズな遷移と効率的なシーンの整理が可能になります。
 
-- <b>効率的なエンティティ-コンポーネントシステム</b>: Pigframeの中心には、関心の分離を促進し、パフォーマンスを高める効率的なエンティティ-コンポーネントシステム（ECS）があります。
+- <b>効率的なエンティティ-コンポーネントシステム</b>: Pigframe の中心は、機能の分離を促しパフォーマンスを高めるのに効果的なエンティティ-コンポーネントシステム（ECS）です。
 
-- <b>Python的なシンプルさ</b>: シンプルさと可読性のPythonの哲学で設計されたPigframeは、ゲーム開発を学ぶ人や、アクセスしやすいが強力なツールを求める個々の開発者に最適です。
+- <b>Python でわかりやすい</b>: Pigframe はシンプルさと可読性の高い Python で書かれています。Python でゲーム開発を学びたい人、ゲームを作ってみたい人、アクセスしやすいが頑健なツールを求めている個人開発者に最適におすすめのフレームワークです。
 
-- <b>多様な統合</b>: Pigframeは、PyxelやPygameのような人気のあるPythonゲームライブラリとシームレスに動作するよう最適化されており、多様で創造的なゲーム開発プロジェクトに最適な選択です。
+- <b>併用しやすい</b>: Pigframe は、Pyxel や Pygame のような人気のある Python ゲームエンジンライブラリを使って多様で創造的なゲームを開発したいときに使うとピッタリです。
 
 #### はじめかた:
-Pigframeを始めるには、pipを使用してパッケージをインストールするだけです:
+Pigframe を始めるには、pip を使用してパッケージをインストールするだけです:
 
 ```bash
 pip install pigframe
 ```
 
 #### コントリビューティング:
-Pigframeへの貢献を歓迎します！バグレポート、機能リクエスト、コードの貢献など、あなたのインプットはPigframeをみんなのためにより良くするために貴重です。
+バグレポート、機能リクエスト、コードの貢献など、Pigframe をより良いツールにするためどんなインプットも貴重だと考えます。どのような形でも Pigframe への貢献を歓迎いたします。
 
 #### ユーザーガイド:
 
@@ -46,7 +46,7 @@ Pigframeへの貢献を歓迎します！バグレポート、機能リクエス
     app = App()
     ```
 
-- エンティティーを追加、削除する
+- エンティティーをワールドに追加、削除する
     ```python
     # Create entity to world.
     entity = app.create_entity() # -> int: entity ID
@@ -58,8 +58,9 @@ Pigframeへの貢献を歓迎します！バグレポート、機能リクエス
     ```python
     # Add component to entity ID.
     # Components are recorded as values where entity ID is the key inside dict.
-    app.add_component_to_entity(entity, ComponentA(some_args))
-    app.add_component_to_entity(entity, ComponentB(some_args))
+    # Component instance are created automatically.
+    app.add_component_to_entity(entity, ComponentA, component_args) # ComponentA is not an instance of Component but type.
+    app.add_component_to_entity(entity, ComponentB, component_args) # ComponentB is not an instance of Component but type.
     # getter
     app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component implementation. 
     app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component implementations. 
@@ -95,7 +96,7 @@ Pigframeへの貢献を歓迎します！バグレポート、機能リクエス
             """
     ```
 
-- ゲームのシーンを world に追加する
+- ゲームのシーンをワールドに追加する
     ```python
     # Add scenes to world.
     app.add_scenes(["launch", "game", "result", "settings"])
@@ -103,56 +104,83 @@ Pigframeへの貢献を歓迎します！バグレポート、機能リクエス
     app.sceneces # -> [["launch", "game", "result", "settings"]
     ```
 
-- ゲームのシステムを world に追加・削除する
+- ゲームのシステムをワールドに追加・削除する
     ```python
     # Add screen to a scene of world. Be sure you have added scenes before adding screens.
-    app.add_scene_system(SystemA(app), "launch", priority = 0)
+    # System instance are created automatically.
+    app.add_system_to_scenes(SystemA, "launch", priority = 0, system_args)
     # system with its lower priority than the other systems is executed in advance., by default 0.
     # For here, SystemA().process() runs first in "launch" scene.
-    app.add_scene_system(SystemA(app), "game", priority = 0)
-    app.add_scene_system(SystemB(app), "launch", priority = 1)
+    app.add_system_to_scenes(SystemA, "game", priority = 0, system_args)
+    app.add_system_to_scenes(SystemB, "launch", priority = 1)
     # Remove system from scene.
-    app.remove_system_from_scene(SystemA, ["launch", "game"])
+    app.remove_system_from_scene(SystemA, ["launch", "game"], system_args = system_args)
     ```
 
-- 画面処理をゲームに追加・削除する
+- 画面処理をワールドに追加・削除する
     ```python
     # Add screen to a scene of world. Be sure you have added scenes before adding screens.
-    app.add_scene_screen(ScreenA(app), "launch", priority = 0)
-    app.add_scene_screen(ScreenB(app), "launch", priority = 0)
-    app.add_scene_screen(ScreenC(app), "game", priority = 0)
+    # Screen instance are created automatically.
+    app.add_screen_to_scenes(ScreenA, "launch", priority = 0)
+    app.add_screen_to_scenes(ScreenB, "launch", priority = 0)
+    app.add_screen_to_scenes(ScreenC, "game", priority = 0, screen_args)
     # Remove screen from scene.
     app.remove_screen_from_scene(ScreenB, "launch")
     ```
 
-- イベント処理をゲームに追加・削除する
+- イベント処理をワールドに追加・削除する
     ```python
-    # Add an event to a scene of world. Be sure you have added scenes before adding events.
-    app.add_scene_event(EventA(app), "game", priority = 0)
+    # Add an event, event triger to a scene of world. Be sure you have added scenes before adding events.
+    # Event instance are created automatically.
+    app.add_event_to_scene(EventA, "game", callable_triger, priority = 0)
     # Remove event from scene.
     app.remove_event_from_scene(EventA, "game")
     ```
 
-- シーン・レベル（状態）遷移を追加する
+- 状態遷移（シーン・レベル遷移に使えるもの）を追加する
     ```python
-    app.add_scene_map(scene = "launch", to = "game", triger = callable_triger)
+    app.add_scene_transition(scene_from = "launch", scene_to = "game", triger = callable_triger)
     # triger has to be callable.
     ```
 
-- イベントを実行するトリガーを追加する
-    ```python
-    app.add_scene_events_map(scene = "game", event_name = "event name", triger = callable_triger)
-    # triger has to be callable
+- システム、イベント、画面処理を実行する
+     ```python
+    # Pyxel Example
+    class App(World):
+        ...
+
+        def run(self):
+            pyxel.run(self.update, self.draw)
+
+        def update(self):
+            self.process() # World class has process method.
+            # process method calls these internal methods below.
+            # 1. process_systems()
+            # 1. process_events()
+            # 1. level_manager.process()
+
+        def draw(self):
+            self.process_screens()
     ```
 
-- システム、イベント、画面処理を実行する
     ```python
-    app.process_systems() # execute systems of current scene.
-    app.process_events() # execute events of current scene.
-    app.draw_screens() # execute screens of current scene.
+    # Pygame Example
+    class App(World):
+        ...
+        
+        def run(self):
+            while self.running:
+                self.update()
+                self.draw()
+                
+        def update(self):
+            self.process()
+        
+        def draw(self):
+            self.process_screens()
     ```
 
 #### 使用例
-| ゲームエンジン | 例 |
-| ---- | ----|
-| Pyxel | https://github.com/passive-radio/pigframe/tree/main/examples/control_a_ball |
+| ゲームエンジン | 例 | 内容 |
+| ---- | ----| ---- |
+| Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/examples/control_a_ball) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |

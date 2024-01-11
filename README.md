@@ -54,6 +54,18 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
     app.remove_entity(entity) # deletes from entites list
     ```
 
+- add components to entity
+    ```python
+    # Add component to entity ID.
+    # Components are recorded as values where entity ID is the key inside dict.
+    # Component instance are created automatically.
+    app.add_component_to_entity(entity, ComponentA, component_args) # ComponentA is not an instance of Component but type.
+    app.add_component_to_entity(entity, ComponentB, component_args) # ComponentB is not an instance of Component but type.
+    # getter
+    app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component implementation. 
+    app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component implementations. 
+    ```
+
 - use component values inside system, event and screen
     ```python
     # Example of using get_components() method.
@@ -82,18 +94,6 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
                 key: component type
                 value: component
             """
-    ```
-
-- add components to entity
-    ```python
-    # Add component to entity ID.
-    # Components are recorded as values where entity ID is the key inside dict.
-    # Component instance are created automatically.
-    app.add_component_to_entity(entity, ComponentA, component_args) # ComponentA is not an instance of Component but type.
-    app.add_component_to_entity(entity, ComponentB, component_args) # ComponentB is not an instance of Component but type.
-    # getter
-    app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component implementation. 
-    app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component implementations. 
     ```
 
 - add scenes to world
@@ -131,6 +131,7 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
 - add/remove event to/from world
     ```python
     # Add an event, event triger to a scene of world. Be sure you have added scenes before adding events.
+    # Event instance are created automatically.
     app.add_event_to_scene(EventA, "game", callable_triger, priority = 0)
     # Remove event from scene.
     app.remove_event_from_scene(EventA, "game")
