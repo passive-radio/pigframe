@@ -1,11 +1,17 @@
 from typing import Type
 from dataclasses import dataclass
 from .level import LevelManager
+from abc import ABCMeta, abstractmethod
 
 version = '0.0.2'
 
-class System():
-    def __init__(self, world, priority: int = 0) -> None:
+@dataclass
+class Component(metaclass=ABCMeta):
+    """Base class for components."""
+    
+
+class System(metaclass=ABCMeta):
+    def __init__(self, world, priority: int = 0, *args) -> None:
         """System is a class which has a process method. The process method is executed every frame.
 
         Parameters
@@ -17,12 +23,13 @@ class System():
         """
         self.world: World = world
         self.priority = priority
-        
+    
+    @abstractmethod
     def process(self):
         pass
 
-class Event(System):
-    def __init__(self, world, event_name: str, priority: int = 0) -> None:
+class Event(System, metaclass=ABCMeta):
+    def __init__(self, world, priority: int = 0, *args) -> None:
         """Event is a class which has a process method. The process method is executed when the event is trigered.
 
         Parameters
@@ -35,21 +42,21 @@ class Event(System):
             event with its lower priority than the others events is executed in advance., by default 0
         """
         super().__init__(world, priority)
-        self.event_name = event_name
-        
+    
     def process(self):
-        if self.world.level_manager.scenes_events[self.world.current_scene][self.event_name]["run"] != 1:
+        if self.world.level_manager.scenes_events[self.world.current_scene][type(self)]["run"] != 1:
             return
         
-        print("process event!: ", self.event_name)
+        print("Event trigerd!: ", type(self))
         self.__process()
-        self.world.level_manager.scenes_events[self.world.current_scene][self.event_name]["run"] = 0
-        
+        self.world.level_manager.scenes_events[self.world.current_scene][type(self)]["run"] = 0
+    
+    @abstractmethod
     def __process(self):
         pass
     
-class Screen():
-    def __init__(self, world, priority: int = 0) -> None:
+class Screen(metaclass=ABCMeta):
+    def __init__(self, world, priority: int = 0, *args) -> None:
         """Screen is a class which has a draw method. The draw method is executed every frame.
 
         Parameters
@@ -61,16 +68,12 @@ class Screen():
         """
         self.world: World = world
         self.priority = priority
-        
+    
+    @abstractmethod
     def draw(self):
         pass
-    
-@dataclass
-class Component:
-    """Base class for components."""
-    
 
-class World():
+class World(metaclass=ABCMeta):
     def __init__(self):
         """World is a class which has entities, components, systems, screens. It is the core of the game.
         """
@@ -97,7 +100,7 @@ class World():
         self.next_entity_id += 1
         return entity
     
-    def add_component_to_entity(self, entity, component) -> None:
+    def add_component_to_entity(self, entity: int, component_type: type(Component), *component_args) -> None:
         """Add a component to an entity.
         
         Parameters
@@ -107,7 +110,7 @@ class World():
         component : Component
             component to be added
         """
-        component_type = type(component)
+        component = component_type(*component_args)
         if component_type not in self.components:
             self.components[component_type] = set()
         
@@ -138,7 +141,7 @@ class World():
         """
         return self.entities[entity]
     
-    def _get_component(self, component_type: Component):
+    def _get_component(self, component_type: type(Component)):
         """Get component.
 
         Parameters
@@ -154,7 +157,7 @@ class World():
         for entity in self.components.get(component_type):
             yield entity, self.entities[entity][component_type]
 
-    def get_component(self, component_type: Component):
+    def get_component(self, component_type: type(Component)):
         """Get component.
 
         Parameters
@@ -171,7 +174,7 @@ class World():
             self._get_component(component_type))
             )
     
-    def _get_components(self, *component_types: list[Component]):
+    def _get_components(self, *component_types: list[type(Component)]):
         """Get components.
 
         Yields
@@ -182,7 +185,7 @@ class World():
         for entity in set.intersection(*[self.components[ct] for ct in component_types]):
             yield entity, [self.entities[entity][ct] for ct in component_types]
         
-    def get_components(self, *component_types: list[Component]):
+    def get_components(self, *component_types: list[type(Component)]):
         """Get components.
 
         Returns
@@ -212,47 +215,48 @@ class World():
         """
         self.level_manager.add_scenes(scenes)
         
-    def add_scene_map(self, scene: str, to: str, triger: callable):
+    def add_scene_transition(self, scene_from: str, scene_to: str, triger: callable):
         """Add a scene transition to world.
 
         Parameters
         ----------
-        scene : str
+        scene_from : str
             name of scene
-        to : str
+        scene_to : str
             name of scene to be transitioned
         triger : callable
             triger of transition
         """
-        self.level_manager.add_scene_map(scene, to, triger)
+        self.level_manager.add_scene_transition(scene_from, scene_to, triger)
         
-    def add_scene_events_map(self, scene: str, event_name: str, triger: callable):
+    def add_scene_event_transition(self, scene: str, event_type: type(Event), triger: callable):
         """Add an event info to a scene of world.
 
         Parameters
         ----------
         scene : str
             name of scene
-        event_name : str
+        event_type : str
             name of event
         triger : callable
             triger of event
         """
-        self.level_manager.add_scene_events(scene, event_name, triger)
+        self.level_manager.add_scene_event(scene, event_type, triger)
         
-    def add_scene_system(self, system, scenes: list[str], priority: int = 0):
+    def add_system_to_scenes(self, system_type: type(System), scenes: list[str] | str, priority: int = 0, *system_args):
         """Add a system to scenes of world. Be sure you have added scenes before adding systems.
 
         Parameters
         ----------
-        system : System
-            system to be added
+        system : type(System)
+            type of system to be added. It must be a type of subclass of System. System instance is created automatically.
         scenes : list[str], optional
             scenes where the system is executed, by default None
         priority : int, optional
             system with its lower priority than the other systems is executed in advance., by default 0
         """
-        system.priority = priority
+        system_type: Type[System]
+        system = system_type(self, priority, *system_args)
         
         if type(scenes) == str:
             scene = scenes
@@ -268,7 +272,7 @@ class World():
             self.scene_systems[scene].append(system)
             self.scene_systems[scene] = sorted(self.scene_systems[scene], key=lambda x: x.priority)
             
-    def add_system(self, system, priority: int = 0) -> None:
+    def add_system(self, system_type: type(System), priority: int = 0, *system_args) -> None:
         """Add a system to all scenes of world. Be sure you have added scenes before adding systems.
 
         Parameters
@@ -279,21 +283,22 @@ class World():
             system with its lower priority than the other systems is executed in advance., by default 0
         """
         scenes = self.scenes
-        self.add_scene_system(system, scenes, priority)
+        self.add_scene_system(system_type, scenes, priority, *system_args)
         
-    def add_scene_screen(self, screen, scenes: list[str], priority: int = 0):
+    def add_screen_to_scenes(self, screen_type: type(Screen), scenes: list[str] | str, priority: int = 0, *screen_args):
         """Add a screen to scenes of world. Be sure you have added scenes before adding screens.
 
         Parameters
         ----------
-        screen : Screen
-            screen to be added
+        screen_type : type(Screen)
+            type of screen to be added. It must be a type of subclass of Screen. Screen instance is created automatically.
         scenes : list[str], optional
             scenes where the screen is executed, by default None
         priority : int, optional
             screen with its lower priority than the other screens is executed in advance., by default 0
         """
-        screen.priority = priority
+        
+        screen = screen_type(self, priority, *screen_args)
         
         if type(scenes) == str:
             scene = scenes
@@ -309,50 +314,54 @@ class World():
             self.scene_screens[scene].append(screen)
             self.scene_screens[scene] = sorted(self.scene_screens[scene], key=lambda x: x.priority)
             
-    def add_screen(self, screen, priority: int = 0) -> None:
+    def add_screen(self, screen_type: type(Screen), priority: int = 0, *screen_args) -> None:
         """Add a screen to all scenes of world. Be sure you have added scenes before adding screens.
 
         Parameters
         ----------
-        screen : Screen
-            screen to be added
+        screen_type : type(Screen)
+            type of screen to be added. It must be a type of subclass of Screen. Screen instance is created automatically.
         priority : int, optional
             screen with its lower priority than the other screens is executed in advance., by default 0
         """
         scenes = self.scenes
-        self.add_scene_screen(screen, scenes, priority)
+        self.add_screen_to_scenes(screen_type, scenes, priority, *screen_args)
         
-    def add_scene_event(self, event: Event, scene: str, priority: int = 0):
+    def add_event_to_scene(self, event_type: type(Event), scene: str, triger: callable, priority: int = 0, *event_args):
         """Add an event to a scene of world. Be sure you have added scenes before adding events.
 
         Parameters
         ----------
-        event : Event
-            event to be added
+        event_type : type(Event)
+            event to be added. It must be a type of subclass of Event. Event instance is created automatically.
         scene : str
             scene where the event is executed
+        triger : callable
+            triger of event. It must be a callable object.
         priority : int, optional
             event with its lower priority than the other events is executed in advance., by default 0
         """
-        event.priority = priority
+        event = event_type(self, priority, *event_args)
         
         if self.scene_events.get(scene) is None:
             self.scene_events.update({scene: []})
+            
+        self.add_scene_event_transition(scene, event_type, triger)
         self.scene_events[scene].append(event)
         self.scene_events[scene] = sorted(self.scene_events[scene], key=lambda x: x.priority)
         
-    def add_event(self, event: Event, priority: int = 0):
+    def add_event(self, event_type: type(Event), priority: int = 0, *event_args):
         """Add an event to all scenes of world. Be sure you have added scenes before adding events.
 
         Parameters
         ----------
-        event : Event
-            event to be added
+        event_type : type(Event)
+            type of event to be added. It must be a type of subclass of Event. Event instance is created automatically.
         priority : int, optional
             event with its lower priority than the other events is executed in advance., by default 0
         """
         scenes = self.scenes
-        self.add_scene_event(event, scenes, priority)
+        self.add_event_to_scene(event_type, scenes, priority, *event_args)
         
     def process_systems(self):
         """Process all systems in the current scene of world. Be sure you have added scenes before processing systems.
@@ -363,7 +372,7 @@ class World():
             system: System
             system.process()
             
-    def draw_screens(self):
+    def process_screens(self):
         """Draw all screens in the current scene of world. Be sure you have added scenes before drawing screens.
         """
         if self.scene_screens.get(self.current_scene) is None:
@@ -384,14 +393,14 @@ class World():
         self.level_manager.process()
         self.process_events()
         
-    def has_component(self, entity: int, component_type: Component):
+    def has_component(self, entity: int, component_type: type(Component)):
         """Check if an entity has a component.
 
         Parameters
         ----------
         entity : int
             entity id
-        component_type : Component
+        component_type : type(Component)
             component type
 
         Returns
