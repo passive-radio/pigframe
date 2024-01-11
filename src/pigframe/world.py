@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from .level import LevelManager
 from abc import ABCMeta, abstractmethod
 
-version = '0.0.2'
+version = '0.0.3'
 
 @dataclass
 class Component(metaclass=ABCMeta):

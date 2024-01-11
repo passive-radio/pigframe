@@ -1,5 +1,5 @@
 from typing import TypeVar
-version = '0.0.2'
+version = '0.0.3'
 
 _T_event = TypeVar('_T_event')
 
