@@ -1,4 +1,7 @@
+from typing import TypeVar
 version = '0.0.2'
+
+_T_event = TypeVar('_T_event')
 
 class LevelManager():
     def __init__(self) -> None:
@@ -19,20 +22,20 @@ class LevelManager():
             self.__scenes_events.update({scene: {}})
             self.__scenes_map.update({scene: {}})
     
-    def add_scene_events(self, scene: str, event_name: str, triger: callable) -> None:
+    def add_scene_event(self, scene: str, event_type: _T_event, triger: callable) -> None:
         if self.__scenes_events.get(scene) is None:
             self.__scenes_events.update({scene: {}})
         
-        self.__scenes_events[scene].update({event_name: {"triger": triger, "run": 0}})
+        self.__scenes_events[scene].update({event_type: {"triger": triger, "run": 0}})
         
-    def add_scene_map(self, scene: str, to: str, triger: callable) -> None:
-        if self.__scenes_map.get(scene) is None:
-            self.__scenes_map.update({scene: {}})
+    def add_scene_transition(self, scene_from: str, scene_to: str, triger: callable) -> None:
+        if self.__scenes_map.get(scene_from) is None:
+            self.__scenes_map.update({scene_from: {}})
         
-        self.__scenes_map[scene].update({to: triger})
+        self.__scenes_map[scene_from].update({scene_to: triger})
         
-    def update_scene_event(self, scene, event, run: int):
-        self.__scenes_events[scene][event]["run"] = run
+    def update_scene_event(self, scene: str, event_type: _T_event, run: int):
+        self.__scenes_events[scene][event_type]["run"] = run
         
     def process(self):
         self.__process_events()
@@ -56,8 +59,8 @@ class LevelManager():
             self.current_scene = self.next_scene
 
     @property
-    def to(self):
-        return self.__scenes_map.values()
+    def transitions(self):
+        return self.__scenes_map.items()
     
     @property
     def scenes(self):
