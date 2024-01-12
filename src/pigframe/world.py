@@ -85,7 +85,6 @@ class World(metaclass=ABCMeta):
         self.scene_events: dict[list[Event]] = {}
         self._get_component_cache = {}
         self._get_components_cache = {}
-        self.running = True
         self.level_manager = LevelManager()
         
     def create_entity(self,):
