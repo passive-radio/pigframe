@@ -1,4 +1,4 @@
-## control a ball [Pyxel version]
+## control a ball [Pygame version]
 
 #### Files include:
 
@@ -7,14 +7,14 @@
 - entity.py: Player class with create method which create player entity and add components to world.
 - event.py: `Event` examples (EvChangeBallColor)
 - screen.py: `Screen` examples (ScLaunch, ScGame)
-- system.py: `System` examples (SysBallMovement, SysControlVelocity)
+- system.py: `System` examples (SysEventListener, SysBallMovement, SysControlVelocity)
 
 #### User guide:
 
 1. Download this code.
 1. install module dependency
     ```bash
-    pip install -U pyxel pigframe
+    pip install -U pygame pigframe
     ```
 1. Run app.py
     ```bash
