@@ -6,6 +6,7 @@ include \
 
 graft docs
 graft tests
+graft examples
 
 global-exclude .gitignore
 
