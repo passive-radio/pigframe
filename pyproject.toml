@@ -5,6 +5,6 @@ requires = ["setuptools >= 40.9.0",
             ]
 build-backend = "setuptools.build_meta"
 
-# [tool.setuptools_scm]
-# write_to = "pigframe/_version.py"
+[tool.setuptools_scm]
+write_to = "pigframe/_version.py"
 
