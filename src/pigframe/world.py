@@ -326,7 +326,7 @@ class World(metaclass=ABCMeta):
         scenes = self.scenes
         self.add_screen_to_scenes(screen_type, scenes, priority, *screen_args)
         
-    def add_event_to_scene(self, event_type: type(Event), scene: str, triger: callable, priority: int = 0, *event_args):
+    def add_event_to_scene(self, event_type: type(Event), scene: str, triger: callable, priority: int = 0, **kwargs):
         """Add an event to a scene of world. Be sure you have added scenes before adding events.
 
         Parameters
@@ -340,7 +340,7 @@ class World(metaclass=ABCMeta):
         priority : int, optional
             event with its lower priority than the other events is executed in advance., by default 0
         """
-        event = event_type(self, priority, *event_args)
+        event = event_type(self, priority, **kwargs)
         
         if self.scene_events.get(scene) is None:
             self.scene_events.update({scene: []})

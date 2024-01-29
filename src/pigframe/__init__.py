@@ -1,1 +1,2 @@
-from . import level, world
+from .world import *
+from .level import *

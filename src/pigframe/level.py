@@ -43,12 +43,16 @@ class LevelManager():
         self.update_scene()
         
     def __process_events(self):
+        if self.__scenes_events.get(self.current_scene) is None:
+            return
         for event, event_data in self.__scenes_events[self.current_scene].items():
             if event_data["triger"]():
                 self.update_scene_event(self.current_scene, event, 1)
     
     def __process_transitions(self):
-         for scene, triger in self.__scenes_map[self.current_scene].items():
+        if self.__scenes_map.get(self.current_scene) is None:
+            return
+        for scene, triger in self.__scenes_map[self.current_scene].items():
             if triger():
                 self.next_scene = scene
                 return
