@@ -183,5 +183,5 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
 #### Examples
 | game engine | example | contents |
 | ---- | ----| ---- |
-| Pygame | [control a ball](https://github.com/passive-radio/pigframe/tree/main/examples/pygame_control_a_ball) | examples of system, event, component, entity and world implementations |
-| Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/examples/pyxel_control_a_ball) | examples of system, event, component, entity and world implementations |
+| Pygame | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | examples of system, event, component, entity and world implementations. |
+| Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | examples of system, event, component, entity and world implementations. |

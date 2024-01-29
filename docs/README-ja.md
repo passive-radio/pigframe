@@ -183,5 +183,5 @@ pip install pigframe
 #### 使用例
 | ゲームエンジン | 例 | 内容 |
 | ---- | ----| ---- |
-| Pygame | [control a ball](https://github.com/passive-radio/pigframe/tree/main/examples/pygame_control_a_ball) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
-| Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/examples/pyxel_control_a_ball) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
+| Pygame | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
+| Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
