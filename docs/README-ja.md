@@ -54,16 +54,27 @@ pip install pigframe
     app.remove_entity(entity) # deletes from entites list
     ```
 
-- エンティティーにコンポーネントを追加する
+- エンティティーにコンポーネントを追加/削除する
+    - エンティティーにコンポーネントを追加する
     ```python
     # Add component to entity ID.
     # Components are recorded as values where entity ID is the key inside dict.
     # Component instance are created automatically.
-    app.add_component_to_entity(entity, ComponentA, component_args) # ComponentA is not an instance of Component but type.
-    app.add_component_to_entity(entity, ComponentB, component_args) # ComponentB is not an instance of Component but type.
+    app.add_component_to_entity(entity, ComponentA, component_argsA) # ComponentA is not an instance of Component but type.
+    app.add_component_to_entity(entity, ComponentB, component_argsB) # ComponentB is not an instance of Component but type.
     # getter
     app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component implementation. 
     app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component implementations. 
+    ```
+
+    - エンティティーに紐づいているコンポーネントを削除する
+    ```python
+    app.add_component_to_entity(ent, ComponentA, component_argsA)
+    app.add_component_to_entity(ent, ComponentB, component_argsB)
+    app.remove_component_from_entity(ent, ComponentA) # remove single component instance from entity
+
+    app.add_component_to_entity(ent, ComponentC, component_argsC)
+    app.remove_components_from_entity(ent, ComponentB, ComponentC) # remove components instances from entity
     ```
 
 - コンポーネントの値を syste, event, screen で使う
