@@ -528,6 +528,37 @@ class World(metaclass=ABCMeta):
             for event in self.scene_events[scene]:
                 if type(event) is event_type:
                     self.scene_events[scene].remove(event)
+                    
+    def remove_component_from_entity(self, entity: int, component_type: type(Component)):
+        """Remove a component from an entity.
+
+        Parameters
+        ----------
+        entity : int
+            entity id
+        component_type : type(Component)
+            component type
+        """
+        if component_type not in self.entities[entity]:
+            return
+        self.components[component_type].remove(entity)
+        del self.entities[entity][component_type]
+        
+    def remove_components_from_entity(self, entity: int, *component_types: list[type(Component)]):
+        """Remove components from an entity.
+
+        Parameters
+        ----------
+        entity : int
+            entity id
+        component_types : list[type(Component)]
+            component types
+        """
+        for component_type in component_types:
+            if component_type not in self.entities[entity]:
+                continue
+            self.components[component_type].remove(entity)
+            del self.entities[entity][component_type]
         
     @property
     def scenes(self):
