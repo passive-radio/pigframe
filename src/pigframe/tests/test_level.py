@@ -1,10 +1,10 @@
-from pigframe.level import LevelManager
+from pigframe.scene import SceneManager
 
 def test():
-    level_manager = LevelManager()
-    level_manager.add_scenes(["scene1", "scene2", "scene3"])
-    level_manager.add_scene_map("scene1", "scene2", lambda: 1 == 1)
-    level_manager.add_scene_events("scene1", "event1", lambda: 1 == 2)
+    scene_manager = SceneManager()
+    scene_manager.add_scenes(["scene1", "scene2", "scene3"])
+    scene_manager.add_scene_map("scene1", "scene2", lambda: 1 == 1)
+    scene_manager.add_scene_events("scene1", "event1", lambda: 1 == 2)
     
     print("passed!")
     

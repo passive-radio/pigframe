@@ -18,4 +18,4 @@ class ScGame(Screen):
         for ent, (pos, vel, mov) in self.world.get_components(Position, Velocity, Movable):
             print(mov.body_color)
             pyxel.circ(pos.x, pos.y, 8, mov.body_color)
-            pyxel.line(pos.x, pos.y, pos.x + vel.dx * 10, pos.y + vel.dy * 10, 7)
+            pyxel.line(pos.x, pos.y, pos.x + vel.x * 10, pos.y + vel.y * 10, 7)

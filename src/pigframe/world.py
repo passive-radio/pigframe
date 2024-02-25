@@ -4,9 +4,10 @@ and `System`, `Screen`, `Event` classes which are the base systems
 in the context of ECS (Entity Component System).
 """
 from typing import Type
-from dataclasses import dataclass
-from .level import LevelManager
+from dataclasses import dataclass, asdict, field, make_dataclass
+from .scene import SceneManager
 from abc import ABCMeta, abstractmethod
+from .action import ActionMap
 
 @dataclass
 class Component(metaclass=ABCMeta):
@@ -52,11 +53,11 @@ class Event(System, metaclass=ABCMeta):
         super().__init__(world, priority, **kwargs)
     
     def process(self):
-        if self.world.level_manager.scenes_events[self.world.current_scene][type(self)]["run"] != 1:
+        if self.world.scene_manager.scenes_events[self.world.current_scene][type(self)]["run"] != 1:
             return
         
         self.__process()
-        self.world.level_manager.scenes_events[self.world.current_scene][type(self)]["run"] = 0
+        self.world.scene_manager.scenes_events[self.world.current_scene][type(self)]["run"] = 0
     
     @abstractmethod
     def __process(self):
@@ -98,7 +99,7 @@ class World(metaclass=ABCMeta):
         self.scene_events: dict[list[Event]] = {}
         self._get_component_cache = {}
         self._get_components_cache = {}
-        self.level_manager = LevelManager()
+        self.scene_manager = SceneManager()
         
     def create_entity(self,):
         """Create an entity.
@@ -112,7 +113,7 @@ class World(metaclass=ABCMeta):
         self.next_entity_id += 1
         return entity
     
-    def add_component_to_entity(self, entity: int, component_type: type(Component), **kwargs) -> None:
+    def add_component_to_entity(self, entity: int, component_type: Type[Component], **kwargs) -> None:
         """Add a component to an entity.
         
         Add entity id in the components[component_type] set where every entities 
@@ -154,7 +155,7 @@ class World(metaclass=ABCMeta):
         """
         return self.entities[entity]
     
-    def _get_component(self, component_type: type(Component)):
+    def _get_component(self, component_type: Type[Component]):
         """Get component.
 
         Parameters
@@ -170,7 +171,7 @@ class World(metaclass=ABCMeta):
         for entity in self.components.get(component_type):
             yield entity, self.entities[entity][component_type]
 
-    def get_component(self, component_type: type(Component)):
+    def get_component(self, component_type: Type[Component]):
         """Get component.
 
         Parameters
@@ -187,7 +188,7 @@ class World(metaclass=ABCMeta):
             self._get_component(component_type))
             )
     
-    def _get_components(self, *component_types: list[type(Component)]):
+    def _get_components(self, *component_types: list[Type[Component]]):
         """Get components.
 
         Yields
@@ -198,7 +199,7 @@ class World(metaclass=ABCMeta):
         for entity in set.intersection(*[self.components[ct] for ct in component_types]):
             yield entity, [self.entities[entity][ct] for ct in component_types]
         
-    def get_components(self, *component_types: list[type(Component)]):
+    def get_components(self, *component_types: list[Type[Component]]):
         """Get components.
 
         Returns
@@ -216,7 +217,7 @@ class World(metaclass=ABCMeta):
         scene : str
             name of scene
         """
-        self.level_manager.add_scene(scene)
+        self.scene_manager.add_scene(scene)
         
     def add_scenes(self, scenes: list[str]):
         """Add scenes to world.
@@ -226,7 +227,7 @@ class World(metaclass=ABCMeta):
         scenes : list[str]
             names of scenes
         """
-        self.level_manager.add_scenes(scenes)
+        self.scene_manager.add_scenes(scenes)
         
     def add_scene_transition(self, scene_from: str, scene_to: str, triger: callable):
         """Add a scene transition to world.
@@ -240,9 +241,9 @@ class World(metaclass=ABCMeta):
         triger : callable
             triger of transition
         """
-        self.level_manager.add_scene_transition(scene_from, scene_to, triger)
+        self.scene_manager.add_scene_transition(scene_from, scene_to, triger)
         
-    def add_scene_event_transition(self, scene: str, event_type: type(Event), triger: callable):
+    def add_scene_event_transition(self, scene: str, event_type: Type[Event], triger: callable):
         """Add an event info to a scene of world.
 
         Parameters
@@ -254,14 +255,14 @@ class World(metaclass=ABCMeta):
         triger : callable
             triger of event
         """
-        self.level_manager.add_scene_event(scene, event_type, triger)
+        self.scene_manager.add_scene_event(scene, event_type, triger)
         
-    def add_system_to_scenes(self, system_type: type(System), scenes: list[str] | str, priority: int = 0, **kwargs):
+    def add_system_to_scenes(self, system_type: Type[System], scenes: list[str] | str, priority: int = 0, **kwargs):
         """Add a system to scenes of world. Be sure you have added scenes before adding systems.
 
         Parameters
         ----------
-        system : type(System)
+        system : Type[System]
             type of system to be added. It must be a type of subclass of System. 
             System instance is created automatically.
         scenes : list[str], optional
@@ -286,7 +287,7 @@ class World(metaclass=ABCMeta):
             self.scene_systems[scene].append(system)
             self.scene_systems[scene] = sorted(self.scene_systems[scene], key=lambda x: x.priority)
             
-    def add_system(self, system_type: type(System), priority: int = 0, **kwargs) -> None:
+    def add_system(self, system_type: Type[System], priority: int = 0, **kwargs) -> None:
         """Add a system to all scenes of world. Be sure you have added scenes before adding systems.
 
         Parameters
@@ -299,12 +300,12 @@ class World(metaclass=ABCMeta):
         scenes = self.scenes
         self.add_system_to_scenes(system_type, scenes, priority, **kwargs)
         
-    def add_screen_to_scenes(self, screen_type: type(Screen), scenes: list[str] | str, priority: int = 0, **kwargs):
+    def add_screen_to_scenes(self, screen_type: Type[Screen], scenes: list[str] | str, priority: int = 0, **kwargs):
         """Add a screen to scenes of world. Be sure you have added scenes before adding screens.
 
         Parameters
         ----------
-        screen_type : type(Screen)
+        screen_type : Type[Screen]
             type of screen to be added. It must be a type of subclass of Screen. 
             Screen instance is created automatically.
         scenes : list[str], optional
@@ -329,12 +330,12 @@ class World(metaclass=ABCMeta):
             self.scene_screens[scene].append(screen)
             self.scene_screens[scene] = sorted(self.scene_screens[scene], key=lambda x: x.priority)
             
-    def add_screen(self, screen_type: type(Screen), priority: int = 0, **kwargs) -> None:
+    def add_screen(self, screen_type: Type[Screen], priority: int = 0, **kwargs) -> None:
         """Add a screen to all scenes of world. Be sure you have added scenes before adding screens.
 
         Parameters
         ----------
-        screen_type : type(Screen)
+        screen_type : Type[Screen]
             type of screen to be added. It must be a type of subclass of Screen. 
             Screen instance is created automatically.
         priority : int, optional
@@ -343,12 +344,12 @@ class World(metaclass=ABCMeta):
         scenes = self.scenes
         self.add_screen_to_scenes(screen_type, scenes, priority, **kwargs)
         
-    def add_event_to_scene(self, event_type: type(Event), scene: str, triger: callable, priority: int = 0, **kwargs):
+    def add_event_to_scene(self, event_type: Type[Event], scene: str, triger: callable, priority: int = 0, **kwargs):
         """Add an event to a scene of world. Be sure you have added scenes before adding events.
 
         Parameters
         ----------
-        event_type : type(Event)
+        event_type : Type[Event]
             event to be added. It must be a type of subclass of Event. 
             Event instance is created automatically.
         scene : str
@@ -367,12 +368,12 @@ class World(metaclass=ABCMeta):
         self.scene_events[scene].append(event)
         self.scene_events[scene] = sorted(self.scene_events[scene], key=lambda x: x.priority)
         
-    def add_event(self, event_type: type(Event), priority: int = 0, **kwargs):
+    def add_event(self, event_type: Type[Event], priority: int = 0, **kwargs):
         """Add an event to all scenes of world. Be sure you have added scenes before adding events.
 
         Parameters
         ----------
-        event_type : type(Event)
+        event_type : Type[Event]
             type of event to be added. It must be a type of subclass of Event. 
             Event instance is created automatically.
         priority : int, optional
@@ -390,6 +391,14 @@ class World(metaclass=ABCMeta):
         for system in self.scene_systems[self.current_scene]:
             system: System
             system.process()
+            
+    def process_user_actions(self):
+        """Process checking all user actions happened in a frame. 
+        Be sure you have added user acions definitions first by `set_user_actions_map` method.
+        """
+        if self.user_input_event_map is None:
+            return
+        self.update_user_actions()
             
     def process_screens(self):
         """Draw all screens in the current scene of world. 
@@ -415,18 +424,19 @@ class World(metaclass=ABCMeta):
         """Process all systems, screens, events in the current scene of world.
         Be sure you have added scenes before processing.
         """
+        self.process_user_actions()
         self.process_systems()
-        self.level_manager.process()
+        self.scene_manager.process()
         self.process_events()
         
-    def has_component(self, entity: int, component_type: type(Component)):
+    def has_component(self, entity: int, component_type: Type[Component]):
         """Check if an entity has a component.
 
         Parameters
         ----------
         entity : int
             entity id
-        component_type : type(Component)
+        component_type : Type[Component]
             component type
 
         Returns
@@ -449,7 +459,7 @@ class World(metaclass=ABCMeta):
             
         del self.entities[entity]
         
-    def remove_system_from_scene(self, system_type: type(System), scenes: list[str] | str):
+    def remove_system_from_scene(self, system_type: Type[System], scenes: list[str] | str):
         """Remove a system from scenes of world.
 
         Parameters
@@ -467,15 +477,15 @@ class World(metaclass=ABCMeta):
                 assert("scene not found!")
                 continue
             for system in self.scene_systems[scene]:
-                if type(system) is system_type:
+                if Type[System] is system_type:
                     self.scene_systems[scene].remove(system)
     
-    def remove_system(self, system_type: type(System)):
+    def remove_system(self, system_type: Type[System]):
         """Remove a system from all scenes of world.
 
         Parameters
         ----------
-        system_type : type(System)
+        system_type : Type[System]
             type of system to be removed
         """
         scenes = self.scenes
@@ -484,10 +494,10 @@ class World(metaclass=ABCMeta):
                 assert("scene not found!")
                 continue
             for system in self.scene_systems[scene]:
-                if type(system) is system_type:
+                if Type[System] is system_type:
                     self.scene_systems[scene].remove(system)
                     
-    def remove_screen_from_scene(self, screen_type: type(Screen), scenes: list[str] | str):
+    def remove_screen_from_scene(self, screen_type: Type[Screen], scenes: list[str] | str):
         """Remove a screen from scenes of world.
 
         Parameters
@@ -505,10 +515,10 @@ class World(metaclass=ABCMeta):
                 assert("scene not found!")
                 continue
             for screen in self.scene_screens[scene]:
-                if type(screen) is screen_type:
+                if Type[Screen] is screen_type:
                     self.scene_screens[scene].remove(screen)
     
-    def remove_event_from_scene(self, event_type: type(Event), scenes: list[str] | str):
+    def remove_event_from_scene(self, event_type: Type[Event], scenes: list[str] | str):
         """Remove an event from scenes of world.
 
         Parameters
@@ -526,17 +536,17 @@ class World(metaclass=ABCMeta):
                 assert("scene not found!")
                 continue
             for event in self.scene_events[scene]:
-                if type(event) is event_type:
+                if Type[Event] is event_type:
                     self.scene_events[scene].remove(event)
                     
-    def remove_component_from_entity(self, entity: int, component_type: type(Component)):
+    def remove_component_from_entity(self, entity: int, component_type: Type[Component]):
         """Remove a component from an entity.
 
         Parameters
         ----------
         entity : int
             entity id
-        component_type : type(Component)
+        component_type : Type[Component]
             component type
         """
         if component_type not in self.entities[entity]:
@@ -544,14 +554,14 @@ class World(metaclass=ABCMeta):
         self.components[component_type].remove(entity)
         del self.entities[entity][component_type]
         
-    def remove_components_from_entity(self, entity: int, *component_types: list[type(Component)]):
+    def remove_components_from_entity(self, entity: int, *component_types: list[Type[Component]]):
         """Remove components from an entity.
 
         Parameters
         ----------
         entity : int
             entity id
-        component_types : list[type(Component)]
+        component_types : list[Type[Component]]
             component types
         """
         for component_type in component_types:
@@ -559,7 +569,53 @@ class World(metaclass=ABCMeta):
                 continue
             self.components[component_type].remove(entity)
             del self.entities[entity][component_type]
+
+    def set_user_actions_map(self, action_map: Type[ActionMap]):
+        """Add user action definitions to the world.
+
+        Parameters
+        ----------
+        action_map : Type[ActionMap]
+            User actions map (e.g. whether mouse left button was clicked or not.) to be added. 
+            It must be a subclass of ActionMap. 
+        """
+        event_dict = asdict(action_map)
+        self.user_input_event_map = event_dict
+        events = {}
+        for key, value in event_dict.items():
+            if not callable(value[0]):
+                break
+            events.update({key: False})
+            
+        self._set_user_actions_map(events)
+    
+    def _set_user_actions_map(self, event_results_map: dict[str, bool]):
+        """Set user input events to the world.
+        """
+        fields = [(key, bool, field(default=value)) for key, value in event_results_map.items()]
+        event_results = make_dataclass("EventResults", fields = fields)
+        self.actions = event_results
+    
+    def update_user_actions(self):
+        """Update user input events results.
+        if the user input event happened, the result is True, otherwise False.
+        """
+        events = {}
+        for key, value in self.user_input_event_map.items():
+            if not callable(value[0]):
+                break
+            happened = False
+            if len(value) == 1:
+                happened = value[0]()
+            else:
+                for v in value[1:]:
+                    happened = value[0](v)
+                    if happened:
+                        break
+            events.update({key: happened})
         
+        self._set_user_actions_map(events)
+    
     @property
     def scenes(self):
         """Return all scenes of world.
@@ -569,7 +625,7 @@ class World(metaclass=ABCMeta):
         _type_
             list[str]: names of all scenes
         """
-        return self.level_manager.scenes
+        return self.scene_manager.scenes
     
     @property
     def current_scene(self):
@@ -580,7 +636,7 @@ class World(metaclass=ABCMeta):
         _type_
             str: current scene name
         """
-        return self.level_manager.current_scene
+        return self.scene_manager.current_scene
     
     @property
     def next_scene(self):
@@ -591,7 +647,7 @@ class World(metaclass=ABCMeta):
         _type_
             str: next scene name
         """
-        return self.level_manager.next_scene
+        return self.scene_manager.next_scene
     
     @property
     def prev_scene(self):
@@ -602,7 +658,7 @@ class World(metaclass=ABCMeta):
         _type_
             str: previous scene name
         """
-        return self.level_manager.prev_scene
+        return self.scene_manager.prev_scene
     
     @property
     def current_systems(self):
@@ -668,4 +724,4 @@ class World(metaclass=ABCMeta):
         scene : str
             name of scene
         """
-        self.level_manager.current_scene = scene
+        self.scene_manager.current_scene = scene

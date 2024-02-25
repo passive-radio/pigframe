@@ -168,7 +168,7 @@ pip install pigframe
             # process method calls these internal methods below.
             # 1. process_systems()
             # 1. process_events()
-            # 1. level_manager.process()
+            # 1. scene_manager.process()
 
         def draw(self):
             self.process_screens()

@@ -1,4 +1,4 @@
-from pigframe.world import World
+from pigframe import World
 import pyxel
 
 from system import *
@@ -6,6 +6,7 @@ from component import *
 from screen import *
 from event import *
 from entity import Player
+from actions import Actions
 
 class App(World):
     def __init__(self):
@@ -33,13 +34,15 @@ if __name__ == "__main__":
     app = App()
     app.add_scenes(["launch", "game"])
     
-    app.add_scene_transition("launch", "game", lambda: pyxel.btn(pyxel.KEY_SPACE))
-    app.add_scene_transition("game", "launch", lambda: pyxel.btn(pyxel.KEY_Q))
+    app.add_scene_transition("launch", "game", lambda: app.actions.space_p)
+    app.add_scene_transition("game", "launch", lambda: app.actions.space_p)
+    
+    app.set_user_actions_map(Actions())
     
     app.add_system_to_scenes(SysControlVelocity, "game", 0)
     app.add_system_to_scenes(SysBallMovement, "game", 1)
     
-    app.add_event_to_scene(EvChangeBallColor, "game", lambda: pyxel.btnp(pyxel.KEY_C), 0)
+    app.add_event_to_scene(EvChangeBallColor, "game", lambda: app.actions.c_p, 0)
     
     app.add_screen_to_scenes(ScLaunch, "launch", 0)
     app.add_screen_to_scenes(ScGame, "game", 0)
