@@ -18,7 +18,7 @@ class Player(Entity):
     
     def create(self):
         ent = self.world.create_entity()
-        self.world.add_component_to_entity(ent, Position, 40, 40)
-        self.world.add_component_to_entity(ent, Velocity, 0, 0)
-        self.world.add_component_to_entity(ent, Movable, True)
+        self.world.add_component_to_entity(ent, Position, x = 40, y = 40)
+        self.world.add_component_to_entity(ent, Velocity, x = 0, y = 0)
+        self.world.add_component_to_entity(ent, Movable, speed = 0.3, body_color = 9)
         return ent

@@ -1,13 +1,13 @@
 """
-This module contains the level manager class.
+This module contains the scene manager class.
 """
 
 from typing import TypeVar
 
 _T_event = TypeVar('_T_event')
 
-class LevelManager():
-    """Level manager class.
+class SceneManager():
+    """scene manager class.
     """
     def __init__(self) -> None:
         self.__scenes_events: dict[dict] = {}
@@ -17,7 +17,7 @@ class LevelManager():
         self.prev_scene = None
         
     def add_scenes(self, scenes: list[str]) -> None:
-        """Add scenes to the level manager.
+        """Add scenes to the scene manager.
 
         Parameters
         ----------
@@ -30,7 +30,7 @@ class LevelManager():
                 self.__scenes_map.update({scene: {}})
             
     def add_scene(self, scene: str) -> None:
-        """Add scene to the level manager.
+        """Add scene to the scene manager.
 
         Parameters
         ----------

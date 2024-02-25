@@ -1,5 +1,4 @@
 from pigframe.world import System
-import pyxel
 from component import *
 
 class SysBallMovement(System):
@@ -7,38 +6,39 @@ class SysBallMovement(System):
     def process(self):
         print("ball movement")
         for ent, (pos, vel) in self.world.get_components(Position, Velocity):
-            pos.x += vel.dx
-            pos.y += vel.dy
+            pos.x += vel.x
+            pos.y += vel.y
             if pos.x < 16:
                 pos.x = 16
-                vel.dx = 0
+                vel.x = 0
                 # vel.x = -vel.x
             if pos.x > 240:
                 pos.x = 240
-                vel.dx = 0
+                vel.x = 0
                 # vel.x = -vel.x
             if pos.y < 16:
                 pos.y = 16
-                vel.dy = 0
+                vel.y = 0
                 # vel.y = -vel.y
             if pos.y > 240:
                 pos.y = 240
-                vel.dy = 0
+                vel.y = 0
                 # vel.y = -vel.y
                 
 class SysControlVelocity(System):
         
     def process(self):
         for ent, (pos, vel, mov) in self.world.get_components(Position, Velocity, Movable):
-            if pyxel.btn(pyxel.KEY_A):
-                vel.dx -= 1 * mov.speed
-            if pyxel.btn(pyxel.KEY_D):
-                vel.dx += 1 * mov.speed
-            if pyxel.btn(pyxel.KEY_W):
-                vel.dy -= 1 * mov.speed
-            if pyxel.btn(pyxel.KEY_S):
-                vel.dy += 1 * mov.speed
-            if not pyxel.btn(pyxel.KEY_A) and not pyxel.btn(pyxel.KEY_D):
-                vel.dx = vel.dx * 0.8
-            if not pyxel.btn(pyxel.KEY_W) and not pyxel.btn(pyxel.KEY_S):
-                vel.dy = vel.dy * 0.8
+            actions = self.world.actions
+            if actions.left:
+                vel.x -= 1 * mov.speed
+            if actions.right:
+                vel.x += 1 * mov.speed
+            if actions.up:
+                vel.y -= 1 * mov.speed
+            if actions.down:
+                vel.y += 1 * mov.speed
+            if not actions.left and not actions.right:
+                vel.x = vel.x * 0.8
+            if not actions.up and not actions.down:
+                vel.y = vel.y * 0.8

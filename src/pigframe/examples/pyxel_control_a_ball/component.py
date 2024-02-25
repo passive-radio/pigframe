@@ -15,7 +15,7 @@ class Position(Component):
         self.y = y
         
 class Velocity(Component):
-    def __init__(self, dx=0, dy=0):
+    def __init__(self, x=0, y=0):
         super().__init__()
-        self.dx = dx
-        self.dy = dy
+        self.x = x
+        self.y = y
