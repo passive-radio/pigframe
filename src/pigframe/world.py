@@ -99,6 +99,7 @@ class World(metaclass=ABCMeta):
         self.scene_events: dict[list[Event]] = {}
         self._get_component_cache = {}
         self._get_components_cache = {}
+        self.user_input_event_map = None
         self.scene_manager = SceneManager()
         
     def create_entity(self,):
