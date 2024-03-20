@@ -185,6 +185,7 @@ class World(metaclass=ABCMeta):
         _type_
             list: list of tuple: entity id, component
         """
+        self._get_component_cache[component_type] = list(self._get_component(component_type))
         return self._get_component_cache.setdefault(component_type, list(
             self._get_component(component_type))
             )
