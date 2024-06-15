@@ -139,7 +139,7 @@ class World(metaclass=ABCMeta):
         self.components[component_type].add(entity)
         self.entities[entity].setdefault(component_type, component)
         
-    def get_entity_object(self, entity: int):
+    def get_entity_object(self, entity: int) -> dict | None:
         """Get entity object.
 
         Parameters
@@ -150,10 +150,12 @@ class World(metaclass=ABCMeta):
         Returns
         -------
         _type_
-            dict: entity object
+            dict | None: entity object. If the entity does not exist, return None.
                 key: component type
                 value: component
         """
+        if entity not in self.entities:
+            return None
         return self.entities[entity]
     
     def _get_component(self, component_type: Type[Component]):
@@ -448,18 +450,28 @@ class World(metaclass=ABCMeta):
         """
         return component_type in self.entities[entity]
     
-    def remove_entity(self, entity: int):
+    def remove_entity(self, entity: int) -> bool | None:
         """Remove an entity from world.
 
         Parameters
         ----------
         entity : int
             entity id
+        
+        Returns
+        -------
+        _type_
+            bool | None: True if the entity is removed, None if the entity does not exist
         """
+        if entity not in self.entities:
+            return None
+        
         for component_type in self.entities[entity]:
             self.components[component_type].remove(entity)
             
         del self.entities[entity]
+        
+        return True
         
     def remove_system_from_scene(self, system_type: Type[System], scenes: list[str] | str):
         """Remove a system from scenes of world.
