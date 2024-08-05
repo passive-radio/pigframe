@@ -139,6 +139,9 @@ class World(metaclass=ABCMeta):
         self.components[component_type].add(entity)
         self.entities[entity].setdefault(component_type, component)
         
+        # Clear cache when a component is added
+        self.clear_component_cache()
+        
     def get_entity_object(self, entity: int) -> dict | None:
         """Get entity object.
 
@@ -187,10 +190,11 @@ class World(metaclass=ABCMeta):
         _type_
             list: list of tuple: entity id, component
         """
-        self._get_component_cache[component_type] = list(self._get_component(component_type))
-        return self._get_component_cache.setdefault(component_type, list(
-            self._get_component(component_type))
-            )
+        cache_key = component_type
+        if cache_key not in self._get_component_cache:
+            self._get_component_cache[cache_key] = list(self._get_component(component_type))
+            
+        return self._get_component_cache[cache_key]
     
     def _get_components(self, *component_types: list[Type[Component]]):
         """Get components.
@@ -211,7 +215,38 @@ class World(metaclass=ABCMeta):
         _type_
             list: list of tuple: entity id, list of components
         """
-        return self._get_components_cache.setdefault(component_types, list(self._get_components(*component_types)))
+        cache_key = tuple(component_types)
+        if cache_key not in self._get_components_cache:
+            self._get_components_cache[cache_key] = list(self._get_components(*component_types))
+        return self._get_components_cache[cache_key]
+    
+    def clear_component_cache(self):
+        """Clear the component cache.
+        Call this method when components are added, removed, or modified.
+        """
+        self._get_component_cache.clear()
+        self._get_components_cache.clear()
+    
+    def component_exist(self, component_type: Type[Component]):
+        """Check if component exist.
+        
+        Parameters
+        ----------
+        component_type : Type[Component]
+            component type
+            
+        Returns
+        -------
+        _type_
+            bool: True if component exist, False otherwise
+        """
+        if component_type not in self.components:
+            return False
+        
+        if len(self.components[component_type]) == 0:
+            return False
+        
+        return True
     
     def add_scene(self, scene: str):
         """Add a scene to world.
@@ -470,7 +505,7 @@ class World(metaclass=ABCMeta):
             self.components[component_type].remove(entity)
             
         del self.entities[entity]
-        
+        self.clear_component_cache()
         return True
         
     def remove_system_from_scene(self, system_type: Type[System], scenes: list[str] | str):
