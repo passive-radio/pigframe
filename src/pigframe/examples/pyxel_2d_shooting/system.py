@@ -65,31 +65,21 @@ class SysShooting(System):
 
         if actions.shoot:
             # Create a new projectile
-            for ent, (_) in self.world.get_component(Playable):
-                player_pos = self.world.get_entity_object(ent)[Position]
+            for ent, (playable, player_pos) in self.world.get_components(Playable, Position):
                 bullet_entity = self.world.create_entity()
-                print("Add bullet: ", bullet_entity)
+                # print("Add bullet: ", bullet_entity)
                 bullet_speed = 2
-                self.world.add_component_to_entity(bullet_entity, Position, x = player_pos.x, y = player_pos.y)
+                self.world.add_component_to_entity(bullet_entity, Position, x = player_pos.x + 1, y = player_pos.y)
                 self.world.add_component_to_entity(bullet_entity, Velocity, x = 0, y = -bullet_speed)  # Shoot upwards
                 self.world.add_component_to_entity(bullet_entity, Movable, speed = bullet_speed)
                 self.world.add_component_to_entity(bullet_entity, Bullet)
                 
-                print(self.world.get_entity_object(bullet_entity))
+                print(self.world.get_entity_object(bullet_entity), "next id:", self.world.next_entity_id)
 
         # Move projectiles if they exist
-        entities_dict: dict = self.world.entities
-        ent_ids = [ent for ent in entities_dict]
-        has_bullet = False
-        for ent in ent_ids:
-            if self.world.has_component(ent, Bullet):
-                has_bullet = True
-                break
-        
-        if not has_bullet:
+        if not self.world.component_exist(Bullet):
             return
         
-        cnt_bullet = 0
         for ent, (pos) in self.world.get_component(Bullet):
             pos = self.world.get_entity_object(ent)[Position]
             vel = self.world.get_entity_object(ent)[Velocity]
@@ -101,48 +91,20 @@ class SysShooting(System):
             if pos.y < 0 or pos.y > self.world.SCREEN_SIZE[1] or pos.x < 0 or pos.x > self.world.SCREEN_SIZE[0]:
                 self.world.remove_entity(ent)
                 continue
-            
-            cnt_bullet += 1
 
 class SysBulletHitEnemy(System):
     def process(self):
-        # Get all bullet and enemy entities
-        bullets = []
-        enemies = []
-        
-        entities_dict: dict = self.world.entities
-        ent_ids = [ent for ent in entities_dict]
-        has_bullet = False
-        for ent in ent_ids:
-            if self.world.has_component(ent, Bullet):
-                has_bullet = True
-                break
-        
-        if not has_bullet:
+        if not self.world.component_exist(Bullet) or not self.world.component_exist(CpEnemy):
             return
         
-        for ent, (bul) in self.world.get_component(Bullet):
-            pos = self.world.get_entity_object(ent)[Position]
-            bullets.append((ent, pos))
+        for bullet_ent, (bullet, bullet_pos) in self.world.get_components(Bullet, Position):
+            for enemy_ent, (enemy, enemy_pos) in self.world.get_components(CpEnemy, Position):
 
-        for ent, (enm) in self.world.get_component(CpEnemy):
-            pos = self.world.get_entity_object(ent)[Position]
-            enemies.append((ent, pos))
-        
-        for ent, (player) in self.world.get_component(Playable):
-            player_pos = self.world.get_entity_object(ent)[Position]
-            player_ent = ent
-            
-        # Check for bullet-enemy collisions
-        for enemy_ent, enemy_pos in enemies:
-            for bullet_ent, bullet_pos in bullets:
                 if self.check_collision(bullet_pos, enemy_pos):
                     self.world.remove_entity(bullet_ent)
                     if self.world.get_entity_object(enemy_ent) == None:
                         break
-                    self.world.get_entity_object(enemy_ent)[CpEnemy].hp -= 1
-                    self.world.get_entity_object(player_ent)[Playable].score += 1
-                    # self.world.remove_entity(enemy_ent)
+                    enemy.hp -= 1
 
     @staticmethod
     def check_collision(pos1, pos2, size=16):
@@ -151,12 +113,10 @@ class SysBulletHitEnemy(System):
 class SysPlayerHitEnemy(System):
     def process(self):
         # Check for enemy-player collisions
-        for player_ent, (play) in self.world.get_component(Playable):
-            for enemy_ent, (enm) in self.world.get_component(CpEnemy):
-                if self.check_collision(self.world.get_entity_object(player_ent)[Position], self.world.get_entity_object(enemy_ent)[Position]):
-                    print(f"Player hit by Enemy {enemy_ent}")
-                    self.world.get_entity_object(player_ent)[Playable].hp -= 1
-                    # Trigger game over event or reduce player health here
+        for player_ent, (playable, player_pos) in self.world.get_components(Playable, Position):
+            for enemy_ent, (_, enemy_pos) in self.world.get_components(CpEnemy, Position):
+                if self.check_collision(player_pos, enemy_pos):
+                    playable.hp -= 1
 
     @staticmethod
     def check_collision(pos1, pos2, size=16):
@@ -165,9 +125,7 @@ class SysPlayerHitEnemy(System):
 class SysKillEnemy(System):
     def process(self):
         # Remove enemies with 0 or less HP
-        
-        player_ent = self.world.get_component(Playable)[0][0]
-        
+        player_ent, playable = self.world.get_component(Playable)[0]
         killed = 0
         for ent, (enm) in self.world.get_component(CpEnemy):
             if enm.hp > 0:
@@ -175,7 +133,7 @@ class SysKillEnemy(System):
             self.world.remove_entity(ent)
             killed += 1
             print(f"Enemy {ent} killed")
-            self.world.get_entity_object(player_ent)[Playable].score += 2
+            playable.score += 1
         
         if killed > 0:
             for i in range(killed + 1):

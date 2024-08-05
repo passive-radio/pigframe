@@ -12,7 +12,7 @@ class Player:
         self.world.add_component_to_entity(entity, Position, x = self.x, y = self.y)
         self.world.add_component_to_entity(entity, Velocity, x = 0, y = 0)
         self.world.add_component_to_entity(entity, Movable, speed = 2)
-        self.world.add_component_to_entity(entity, Playable, hp = 10)
+        self.world.add_component_to_entity(entity, Playable, hp = 10, init_score = 0)
 
 class Enemy:
     def __init__(self, world: World, x, y):

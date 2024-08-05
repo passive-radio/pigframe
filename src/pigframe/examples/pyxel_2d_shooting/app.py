@@ -23,7 +23,10 @@ class App(World):
         pyxel.run(self.update, self.draw)
     
     def update(self):
-        self.process()
+        self.scene_manager.process()
+        self.process_user_actions()
+        self.process_systems()
+        self.process_events()
         self.frame_count += 1
         
     def draw(self):
@@ -34,9 +37,9 @@ if __name__ == "__main__":
     app.add_scenes(["launch", "game", "game_over", "victory"])
     app.set_user_actions_map(Actions())
     
-    app.add_scene_transition("launch", "game", lambda: app.actions.space_p)
-    app.add_scene_transition("game_over", "game", lambda: app.actions.space_p)
-    app.add_scene_transition("victory", "game", lambda: app.actions.space_p)
+    app.add_scene_transition("launch", "game", lambda: app.actions.start)
+    app.add_scene_transition("game_over", "game", lambda: app.actions.start)
+    app.add_scene_transition("victory", "game", lambda: app.actions.start)
     
     app.add_system_to_scenes(SysPlayerMovement, "game", 0)
     app.add_system_to_scenes(SysEnemyMovement, "game", 1)
@@ -46,7 +49,7 @@ if __name__ == "__main__":
     app.add_system_to_scenes(SysKillEnemy, "game", -1)
     app.add_system_to_scenes(SysGameOver, "game", -2)
     
-    app.add_event_to_scene(EvRestart, "game_over", lambda: app.actions.space_p, 0)
+    app.add_event_to_scene(EvRestart, "game_over", lambda: app.actions.start, 0)
     
     app.add_screen(ScBG, 0)
     app.add_screen_to_scenes(ScLaunch, "launch", 0)

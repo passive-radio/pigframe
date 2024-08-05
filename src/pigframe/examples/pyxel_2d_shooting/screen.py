@@ -5,7 +5,11 @@ from component import *
 class ScLaunch(Screen):
     def draw(self):
         pyxel.cls(0)
-        pyxel.text(100, 100, "Press ENTER to Start", pyxel.frame_count % 16)
+        pyxel.text(80, 80, "Press ENTER/RETURN to Start", pyxel.frame_count % 16)
+        pyxel.text(80, 100, "WASD or Arrow Keys to Move", 7)
+        pyxel.text(80, 110, "Space to Shoot", 7)
+        pyxel.text(80, 120, "Avoid Enemies and Shoot Them", 7)
+        pyxel.text(80, 130, "+1 Score for Each Enemy Killed", 7)
 
 class ScEnemy(Screen):
     def draw(self):
@@ -39,8 +43,8 @@ class ScGameOver(Screen):
             print(f"Player HP: {player.hp}")
             print(f"Player Score: {player.score}")
             score = player.score
-        pyxel.text(100, 130, f"Score: {score}", 7)
-        pyxel.text(100, 100, "Game Over! Press SPACE to Restart", 7)
+        pyxel.text(100, 120, f"Score: {score}", 7)
+        pyxel.text(50, 100, "Game Over! Press ENTER/RETURN to Restart", 7)
 
 class ScDrawBullet(Screen):
     def draw(self):
