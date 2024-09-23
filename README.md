@@ -5,9 +5,9 @@
 
 <b>[日本語版 README](docs/README-ja.md)</b>
 
-<b>Pigframe</b> is a minimum ECS (Entity Component System) library for any Python-based game project designed to simplify and streamline the development process of game applications.
+<b>Pigframe</b> is a minimum ECS (Entity Component System) library for any Python-based game dev project. While I think it's quite rare to want to adopt ECS for game development in Python, I created this library because there wasn't an open-source library (at the time I started development) that provided both ECS and state management as a single package.
 
-#### Key Features:
+### Key Features:
 - <b>Component-Based Architecture</b>: Pigframe adopts a component-based approach, allowing for modular and scalable game development. This architecture facilitates easy addition, modification, and management of game elements.
 
 - <b>Intuitive Scene Management</b>: Manage game scenes seamlessly with Pigframe's intuitive scene transition and control system. This feature allows for smooth transitions and efficient scene organization.
@@ -18,17 +18,15 @@
 
 - <b>Versatile Integration</b>: Pigframe is optimized to work seamlessly with popular Python game libraries like Pyxel and Pygame, making it a perfect choice for diverse and creative game development projects.
 
-#### Getting Started:
-To get started with Pigframe, simply install the package using pip:
+### Getting Started:
+To get started with Pigframe, simply install the `pigframe` from PyPI.
+Pigframe has no dependencies.
 
 ```bash
 pip install pigframe # pigframe has no dependencies.
 ```
 
-#### Contributing:
-Contributions to Pigframe are welcome! Whether it's bug reports, feature requests or code contributions, any inputs are valuable in making Pigframe better for everyone.
-
-#### User guide:
+### How to use:
 
 - import module
     ```python
@@ -204,9 +202,12 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
 
     If you'd like to know further information, please check example mini projects listed below.
 
-#### Examples
+### Examples
 | game engine | example | contents |
 | ---- | ----| ---- |
 | Pygame | [Demo of player's controlling a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | examples of system, event, component and world implementations. |
 | Pyxel | [Demo of player's controlling a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | examples of system, event, component and world implementations. |
 | Pyxel | [Super simple 2D shooting](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_2d_shooting) | examples of system, event, component, actions and world implementations. |
+
+### Contributing:
+Contributions to Pigframe are welcome! Whether it's bug reports, feature requests or code contributions, any inputs are valuable in making Pigframe better for everyone.
