@@ -22,7 +22,7 @@
 To get started with Pigframe, simply install the package using pip:
 
 ```bash
-pip install pigframe
+pip install pigframe # pigframe has no dependencies.
 ```
 
 #### Contributing:
@@ -66,8 +66,8 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
         app.add_component_to_entity(entity, ComponentA, **component_args) # ComponentA is not an instance of Component but type.
         app.add_component_to_entity(entity, ComponentB(**component_args)) # This is wrong way of use.
         # getter
-        app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component object. -> list(int, ComponentA object)
-        app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component objects.  -> list(int, (ComponentA object, ComponentB object))
+        app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component object. -> list((int, ComponentA object))
+        app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component objects.  -> list((int, (ComponentA object, ComponentB object)))
         ```
 
     - remove components from entity
@@ -123,7 +123,7 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
     # System instance are created automatically.
     app.add_system_to_scenes(SystemA, "launch", priority = 0, **system_args)
     # system with its lower priority than the other systems is executed in advance., by default 0.
-    # For here, SystemA().process() runs first in "launch" scene.
+    # World calls System A then System B.
     app.add_system_to_scenes(SystemA, "game", priority = 0, **system_args)
     app.add_system_to_scenes(SystemB, "launch", priority = 1)
     # Remove system from scene.
