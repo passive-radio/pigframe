@@ -5,7 +5,7 @@
 
 <b>[日本語版 README](docs/README-ja.md)</b>
 
-<b>Pigframe</b> is a minimum Python-based game-engine backend library, designed to simplify and streamline the development process of game applications. Engineered with flexibility and ease of use in mind, Pigframe provides a robust set of tools and functions that enable developers to create immersive and dynamic gaming experiences.
+<b>Pigframe</b> is a minimum ECS (Entity Component System) library for any Python-based game project designed to simplify and streamline the development process of game applications.
 
 #### Key Features:
 - <b>Component-Based Architecture</b>: Pigframe adopts a component-based approach, allowing for modular and scalable game development. This architecture facilitates easy addition, modification, and management of game elements.
@@ -26,18 +26,19 @@ pip install pigframe
 ```
 
 #### Contributing:
-Contributions to Pigframe are welcome! Whether it's bug reports, feature requests, or code contributions, your input is valuable in making Pigframe better for everyone.
+Contributions to Pigframe are welcome! Whether it's bug reports, feature requests or code contributions, any inputs are valuable in making Pigframe better for everyone.
 
 #### User guide:
 
 - import module
     ```python
-    from pigframe.world import World, System, Event, Screen, Component
+    from pigframe import World, System, Event, Screen, Component
     ```
 
-- create your own world class which has entities, components, systems, events and screens. It is the core of the game.
+- create your own world class which manage entities, components, systems, events and screens. It is the start of your game scripts.
     ```python
     # Implement World class for your own project.
+    # Example 
     class App(World):
         def __init__(self):
             super().__init__()
@@ -62,20 +63,20 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
         # Add component to entity ID.
         # Components are recorded as values where entity ID is the key inside dict.
         # Component instance are created automatically.
-        app.add_component_to_entity(entity, ComponentA, component_argsA) # ComponentA is not an instance of Component but type.
-        app.add_component_to_entity(entity, ComponentB, component_argsB) # ComponentB is not an instance of Component but type.
+        app.add_component_to_entity(entity, ComponentA, **component_args) # ComponentA is not an instance of Component but type.
+        app.add_component_to_entity(entity, ComponentB(**component_args)) # This is wrong way of use.
         # getter
-        app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component implementation. 
-        app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component implementations. 
+        app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component object. -> list(int, ComponentA object)
+        app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component objects.  -> list(int, (ComponentA object, ComponentB object))
         ```
 
     - remove components from entity
         ```python
-        app.add_component_to_entity(ent, ComponentA, component_argsA)
-        app.add_component_to_entity(ent, ComponentB, component_argsB)
+        app.add_component_to_entity(ent, ComponentA, **component_argsA)
+        app.add_component_to_entity(ent, ComponentB, **component_argsB)
         app.remove_component_from_entity(ent, ComponentA) # remove single component instance from entity
 
-        app.add_component_to_entity(ent, ComponentC, component_argsC)
+        app.add_component_to_entity(ent, ComponentC, **component_argsC)
         app.remove_components_from_entity(ent, ComponentB, ComponentC) # remove components instances from entity
         ```
 
@@ -84,14 +85,12 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
     # Example of using get_components() method.
     class SystemA(System):
         def process(self):
-            for ent, (component_a, component_b) in self.world.get_components(ComponentA, ComponentB):
+            for ent, (pos, vel) in self.world.get_components(Position, Velocity):
                 """
-                Returns
-                -------
-                list: list of tuple: entity id, list of components
+                Update positions by velocity
                 """
-                component_a.x += component_b.x
-                component_a.y += component_b.x
+                pos.x += vel.x
+                pos.y += vel.x
     ```
 
 - use entity
@@ -99,9 +98,9 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
     # Example of using entity object
     class EventA(Event):
         def __process(self):
-            player = self.world.get_entity_object(entity = 0)
+            player = self.world.get_entity_object(0) # 0 is the entity ID
             """
-            Returns
+            This method returns a dict
             -----------
             dict: entity object
                 key: component type
@@ -113,24 +112,25 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
     ```python
     # Add scenes to world.
     app.add_scenes(["launch", "game", "result", "settings"])
+    add.add_scene("game_over")
     # scenes getter
-    app.sceneces # -> [["launch", "game", "result", "settings"]
+    app.sceneces # -> [["launch", "game", "result", "settings", "game_over"]
     ```
 
 - add/remove system to/from world
     ```python
-    # Add screen to a scene of world. Be sure you have added scenes before adding screens.
+    # Add screen to a scene of world. Be sure you have added scenes before adding systems.
     # System instance are created automatically.
-    app.add_system_to_scenes(SystemA, "launch", priority = 0, system_args)
+    app.add_system_to_scenes(SystemA, "launch", priority = 0, **system_args)
     # system with its lower priority than the other systems is executed in advance., by default 0.
     # For here, SystemA().process() runs first in "launch" scene.
-    app.add_system_to_scenes(SystemA, "game", priority = 0, system_args)
+    app.add_system_to_scenes(SystemA, "game", priority = 0, **system_args)
     app.add_system_to_scenes(SystemB, "launch", priority = 1)
     # Remove system from scene.
-    app.remove_system_from_scene(SystemA, ["launch", "game"], system_args = system_args)
+    app.remove_system_from_scene(SystemA, ["launch", "game"])
     ```
 
-- add/remove screen to/from world
+- add/remove screens to/from world
     ```python
     # Add screen to a scene of world. Be sure you have added scenes before adding screens.
     # Screen instance are created automatically.
@@ -158,7 +158,7 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
 
 - execute systems, events and draw screens
     ```python
-    # Pyxel Example
+    # Example with Pyxel (Python retro game engine)
     class App(World):
         ...
 
@@ -174,6 +174,15 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
 
         def draw(self):
             self.process_screens()
+    ```
+
+    In `update()` method, of course, you can customize execution order as well.
+    ```python
+    def update(self):
+      self.process_user_actions()
+      self.process_systems()
+      self.proces_events()
+      self.scene_manager.process() # Pigframe implements scene listener and World class use this class to manage scenes.
     ```
 
     ```python
@@ -193,8 +202,11 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
             self.process_screens()
     ```
 
+    If you'd like to know further information, please check example mini projects listed below.
+
 #### Examples
 | game engine | example | contents |
 | ---- | ----| ---- |
-| Pygame | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | examples of system, event, component, entity and world implementations. |
-| Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | examples of system, event, component, entity and world implementations. |
+| Pygame | [Demo of player's controlling a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | examples of system, event, component and world implementations. |
+| Pyxel | [Demo of player's controlling a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | examples of system, event, component and world implementations. |
+| Pyxel | [Super simple 2D shooting](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_2d_shooting) | examples of system, event, component, actions and world implementations. |
