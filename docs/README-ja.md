@@ -1,11 +1,11 @@
 ## Pigframe
 ![Pigframe](https://github.com/passive-radio/pigframe/blob/main/docs//images/pigframe-logo-rectangle-200x99.jpg)
 
-<b>[English](../README.md)</b>
+<b>[README(en)](../README.md)</b>
 
-<b>Pigframe</b>は主に Python を使ったゲーム開発プロジェクト向けのミニマムな ECS (Entity Component System) ライブラリです。言語が Python でゲーム開発に ECS を採用したいケースはごく稀だとは思いますが、ECS + ステート管理を1つのライブラリとして提供されているOSSがなかったので (開発を始めた時点では) このライブラリを制作しました。
+<b>Pigframe</b>は主に Python を使ったゲーム開発プロジェクト向けのミニマムな ECS (Entity Component System) ライブラリです。言語が Python でゲーム開発に ECS を採用したいケースはごく稀だとは思いますが、ECS + ステート管理を1つのライブラリとして提供されている OSS が(開発を始めた時点では) 存在しなかったので、このライブラリを制作しました。
 
-#### 主な特徴:
+### 主な特徴:
 - <b>コンポーネントベースのアーキテクチャ</b>: Pigframe はコンポーネントベースのアプローチを採用し、モジュラーでスケーラブルなゲーム開発を可能にします。このアーキテクチャは、ゲーム要素の簡単な追加、変更、管理を容易にします。
 
 - <b>直感的なシーン管理</b>: Pigframe の直感的なシーン遷移と制御システムで、ゲームシーンをシームレスに管理します。この機能により、スムーズな遷移と効率的なシーンの整理が可能になります。
@@ -16,17 +16,15 @@
 
 - <b>併用しやすい</b>: Pigframe は、Pyxel や Pygame のような人気のある Python ゲームエンジンライブラリを使って多様で創造的なゲームを開発したいときに使うとピッタリです。
 
-#### はじめかた:
-Pigframe を始めるには、pip を使用してパッケージをインストールするだけです:
+### はじめかた:
+Pigframe を始めるには、PyPI から `pigframe` をインストールするだけです。
+Pigframe に依存するパッケージはありません。
 
 ```bash
 pip install pigframe # pigframe has no dependencies.
 ```
 
-#### コントリビューティング:
-バグレポート、機能リクエスト、コードの貢献など、Pigframe をより良いライブラリにするためのどんなインプットも貴重だと考えます。どのような形であれ PR, issue を歓迎します。
-
-#### ユーザーガイド:
+### 使い方:
 
 - モジュールをインポートする
     ```python
@@ -201,9 +199,12 @@ pip install pigframe # pigframe has no dependencies.
             self.process_screens()
     ```
 
-#### 使用例
+### 使用例
 | ゲームエンジン | 例 | 内容 |
 | ---- | ----| ---- |
+| Pyxel | [Super simple 2D shooting](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_2d_shooting) | examples of system, event, component, actions and world implementations. |
 | Pygame | [Demo of player's controlling a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | examples of system, event, component and world implementations. |
 | Pyxel | [Demo of player's controlling a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | examples of system, event, component and world implementations. |
-| Pyxel | [Super simple 2D shooting](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_2d_shooting) | examples of system, event, component, actions and world implementations. |
+
+### コントリビューティング:
+バグレポート、機能リクエスト、コードの貢献など、Pigframe をより良いライブラリにするためのどんなインプットも貴重だと考えます。どのような形であれ PR, issue を歓迎します。
