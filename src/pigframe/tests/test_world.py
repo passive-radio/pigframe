@@ -1,4 +1,4 @@
-from pigframe.world import World, System, Screen
+from pigframe import World, System, Screen
 from dataclasses import dataclass
 
 
