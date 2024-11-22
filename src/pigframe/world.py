@@ -262,6 +262,26 @@ class World(metaclass=ABCMeta):
 
         return True
 
+    def components_exist(self, *component_types: list[Type[Component]]):
+        """Check if components exist.
+
+        Parameters
+        ----------
+        component_types : list[Type[Component]]
+            component types
+        """
+        return all(self.component_exist(component_type) for component_type in component_types)
+
+    def set_of_components_exist(self, component_types: list[Type[Component]]):
+        """Check if there's at least one entity that has given set of components.
+
+        Parameters
+        ----------
+        component_types : list[Type[Component]]
+            component types
+        """
+        return len(set.intersection(*[self.components[ct] for ct in component_types])) > 0
+
     def add_scene(self, scene: str):
         """Add a scene to world.
 
