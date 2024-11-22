@@ -1,36 +1,34 @@
 ## Pigframe
 ![Pigframe](https://github.com/passive-radio/pigframe/blob/main/docs//images/pigframe-logo-rectangle-200x99.jpg)
 
-<b>[English](../README.md)</b>
+<b>[README(en)](../README.md)</b>
 
-<b>Pigframe</b>は、ゲームアプリケーションをより簡単に、ルールベースに開発できるようにすることを目的とした、ミニマムな Python 製のゲーム開発用フレームワークです。Pigframe は柔軟性と使いやすさを念頭に置いて設計されており、開発者がゲーム体験を作り出すために基本となる堅牢な機能を提供します。
+<b>Pigframe</b>は主に Python を使ったゲーム開発プロジェクト向けのミニマムな ECS (Entity Component System) ライブラリです。言語が Python でゲーム開発に ECS を採用したいケースはごく稀だとは思いますが、ECS + ステート管理を1つのライブラリとして提供されている OSS が(開発を始めた時点では) 存在しなかったので、このライブラリを制作しました。
 
-#### 主な特徴:
+### 主な特徴:
 - <b>コンポーネントベースのアーキテクチャ</b>: Pigframe はコンポーネントベースのアプローチを採用し、モジュラーでスケーラブルなゲーム開発を可能にします。このアーキテクチャは、ゲーム要素の簡単な追加、変更、管理を容易にします。
 
 - <b>直感的なシーン管理</b>: Pigframe の直感的なシーン遷移と制御システムで、ゲームシーンをシームレスに管理します。この機能により、スムーズな遷移と効率的なシーンの整理が可能になります。
 
 - <b>効率的なエンティティ-コンポーネントシステム</b>: Pigframe の中心は、機能の分離を促しパフォーマンスを高めるのに効果的なエンティティ-コンポーネントシステム（ECS）です。
 
-- <b>Python でわかりやすい</b>: Pigframe はシンプルさと可読性の高い Python で書かれています。Python でゲーム開発を学びたい人、ゲームを作ってみたい人、アクセスしやすいが頑健なツールを求めている個人開発者に最適におすすめのフレームワークです。
+- <b>プログラミング学習者向け</b>: Pigframe はシンプルさと可読性の高い Python で書かれています。Python でゲーム開発を学びたい人、ゲームを作ってみたい人、アクセスしやすいが頑健なツールを求めている個人開発者に最適におすすめのフレームワークです。
 
 - <b>併用しやすい</b>: Pigframe は、Pyxel や Pygame のような人気のある Python ゲームエンジンライブラリを使って多様で創造的なゲームを開発したいときに使うとピッタリです。
 
-#### はじめかた:
-Pigframe を始めるには、pip を使用してパッケージをインストールするだけです:
+### はじめかた:
+Pigframe を始めるには、PyPI から `pigframe` をインストールするだけです。
+Pigframe に依存するパッケージはありません。
 
 ```bash
-pip install pigframe
+pip install pigframe # pigframe has no dependencies.
 ```
 
-#### コントリビューティング:
-バグレポート、機能リクエスト、コードの貢献など、Pigframe をより良いツールにするためどんなインプットも貴重だと考えます。どのような形でも Pigframe への貢献を歓迎いたします。
-
-#### ユーザーガイド:
+### 使い方:
 
 - モジュールをインポートする
     ```python
-    from pigframe.world import World, System, Event, Screen, Component
+    from pigframe import World, System, Event, Screen, Component
     ```
 
 - 専用の world クラスを作成する。world クラスは エンティティー, エンティティーに紐づいたコンポーネント, システム, イベント, 画面処理 を管理するゲームのコアとなるクラスです。
@@ -60,11 +58,11 @@ pip install pigframe
     # Add component to entity ID.
     # Components are recorded as values where entity ID is the key inside dict.
     # Component instance are created automatically.
-    app.add_component_to_entity(entity, ComponentA, component_argsA) # ComponentA is not an instance of Component but type.
-    app.add_component_to_entity(entity, ComponentB, component_argsB) # ComponentB is not an instance of Component but type.
+    app.add_component_to_entity(entity, ComponentA, **component_args) # ComponentA is not an instance of Component but type.
+    app.add_component_to_entity(entity, ComponentB(**component_args)) # this is wrong way of use.
     # getter
-    app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component implementation. 
-    app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id which has ComponentA and ComponentB, component implementations. 
+    app.get_component(ComponentA) # Returns the list of tuple: entity id which has ComponentA, component object. -> list((int, ComponentA object))
+    app.get_components(ComponentA, ComponentB) # Returns the list of tuple: entity id (which has ComponentA and ComponentB), tuple of components objects. -> list((int, (ComponentA obj, ComponentB obj)) 
     ```
 
     - エンティティーに紐づいているコンポーネントを削除する
@@ -82,14 +80,14 @@ pip install pigframe
     # Example of using get_components() method.
     class SystemA(System):
         def process(self):
-            for ent, (component_a, component_b) in self.world.get_components(ComponentA, ComponentB):
+            for ent, (pos, vel) in self.world.get_components(Position, Velocity):
                 """
-                Returns
+                This method returns
                 -------
                 list: list of tuple: entity id, list of components
                 """
-                component_a.x += component_b.x
-                component_a.y += component_b.x
+                pos.x += vel.x
+                pos.y += vel.y
     ```
 
 - エンティティーを使う
@@ -99,7 +97,7 @@ pip install pigframe
         def __process(self):
             player = self.world.get_entity_object(entity = 0)
             """
-            Returns
+            This method returns a dict
             -----------
             dict: entity object
                 key: component type
@@ -111,21 +109,22 @@ pip install pigframe
     ```python
     # Add scenes to world.
     app.add_scenes(["launch", "game", "result", "settings"])
+    app.add_scene("game_over")
     # scenes getter
-    app.sceneces # -> [["launch", "game", "result", "settings"]
+    app.sceneces # -> [["launch", "game", "result", "settings", "game_over"]
     ```
 
 - ゲームのシステムをワールドに追加・削除する
     ```python
     # Add screen to a scene of world. Be sure you have added scenes before adding screens.
     # System instance are created automatically.
-    app.add_system_to_scenes(SystemA, "launch", priority = 0, system_args)
+    app.add_system_to_scenes(SystemA, "launch", priority = 0, **system_args)
     # system with its lower priority than the other systems is executed in advance., by default 0.
-    # For here, SystemA().process() runs first in "launch" scene.
-    app.add_system_to_scenes(SystemA, "game", priority = 0, system_args)
+    # World calls System A then System B.
+    app.add_system_to_scenes(SystemA, "game", priority = 0, **system_args)
     app.add_system_to_scenes(SystemB, "launch", priority = 1)
     # Remove system from scene.
-    app.remove_system_from_scene(SystemA, ["launch", "game"], system_args = system_args)
+    app.remove_system_from_scene(SystemA, ["launch", "game"])
     ```
 
 - 画面処理をワールドに追加・削除する
@@ -134,7 +133,7 @@ pip install pigframe
     # Screen instance are created automatically.
     app.add_screen_to_scenes(ScreenA, "launch", priority = 0)
     app.add_screen_to_scenes(ScreenB, "launch", priority = 0)
-    app.add_screen_to_scenes(ScreenC, "game", priority = 0, screen_args)
+    app.add_screen_to_scenes(ScreenC, "game", priority = 0, **screen_args)
     # Remove screen from scene.
     app.remove_screen_from_scene(ScreenB, "launch")
     ```
@@ -148,7 +147,7 @@ pip install pigframe
     app.remove_event_from_scene(EventA, "game")
     ```
 
-- 状態遷移（シーン・レベル遷移に使えるもの）を追加する
+- 状態遷移（シーン・ステート遷移に使えるもの）を追加する
     ```python
     app.add_scene_transition(scene_from = "launch", scene_to = "game", triger = callable_triger)
     # triger has to be callable.
@@ -174,6 +173,15 @@ pip install pigframe
             self.process_screens()
     ```
 
+    In `update()` method, of course, you can customize execution order as well.
+    ```python
+    def update(self):
+      self.process_user_actions()
+      self.process_systems()
+      self.proces_events()
+      self.scene_manager.process() # Pigframe implements scene listener and World class use this class to manage scenes.
+    ```
+
     ```python
     # Pygame Example
     class App(World):
@@ -191,7 +199,9 @@ pip install pigframe
             self.process_screens()
     ```
 
-セーブデータをロードする際に、いくつかのコンポーネントのパラメータが `entity_id` である場合、`create_entity` メソッドに `entity_id` を渡し、`World` クラスの `set_next_entity_id` メソッドを使用して、前のゲームと現在のゲームセッション間で 同じ `entity_id` が同じゲームオブジェクトを表すことを保証します。
+セーブデータをロードする際に、いくつかのコンポーネントのパラメータが `entity_id` である場合、
+`create_entity` メソッドに `entity_id` を渡し、`World` クラスの `set_next_entity_id` メソッドを使用して、
+前のゲームと現在のゲームセッション間で 同じ `entity_id` が同じゲームオブジェクトを表すことを保証します。
 
 ```python
 ## セッション1
@@ -216,9 +226,14 @@ for entity_id, data in loaded_data:
 world.set_next_entity_id(max_entity_id + 1) # `entity_id` の競合を防ぐ
 ```
 
+実際のゲームプロジェクトでの使用例を確認したい場合は、Pigframe を使用した極めてシンプルなプロジェクトを以下にリストアップしています。
+
 #### 使用例
 | ゲームエンジン | 例 | 内容 |
 | ---- | ----| ---- |
 | Pyxel | [2D shooting game](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_2d_shooting) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
 | Pygame | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
 | Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
+
+### コントリビューティング:
+バグレポート、機能リクエスト、コードの貢献など、Pigframe をより良いライブラリにするためのどんなインプットも貴重だと考えます。どのような形であれ PR, issue を歓迎します。
