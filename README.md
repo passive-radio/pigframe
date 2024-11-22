@@ -193,8 +193,34 @@ Contributions to Pigframe are welcome! Whether it's bug reports, feature request
             self.process_screens()
     ```
 
+when some components' parameters are entity_id and you want to load saved data which had been created by the previous game, you can put entity_id to create_entity method and use set_next_entity_id method of World class to ensure the same entity_id represents the same game object between the previous game and the current game sessions.
+
+```python
+## session1
+a = world.create_entity() # -> 0
+b = world.create_entity() # -> 1
+c = world.create_entity() # -> 2
+world.add_components_to_entity(c, Relation, friedns=[b])
+## remove a
+world.remove_entity(a)
+```
+
+```python
+## session2
+max_entity_id = 0
+for entity_id, data in loaded_data:
+    world.create_entity(entity_id=entity_id) # ensure the same entity_id represents the same game object between sessions.
+    for component_name, component_data in data["components"].items():
+        component_class = globals()[component_name]
+        world.add_component_to_entity(entity_id, component_class, **component_data)
+    max_entity_id = max(max_entity_id, entity_id)
+... # after loading
+world.set_next_entity_id(max_entity_id + 1) # prevent entity_id conflict
+```
+
 #### Examples
 | game engine | example | contents |
 | ---- | ----| ---- |
+| Pyxel | [2D shooting game](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_2d_shooting) | examples of system, event, component, entity and world implementations. |
 | Pygame | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | examples of system, event, component, entity and world implementations. |
 | Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | examples of system, event, component, entity and world implementations. |
