@@ -199,12 +199,41 @@ pip install pigframe # pigframe has no dependencies.
             self.process_screens()
     ```
 
-### 使用例
+セーブデータをロードする際に、いくつかのコンポーネントのパラメータが `entity_id` である場合、
+`create_entity` メソッドに `entity_id` を渡し、`World` クラスの `set_next_entity_id` メソッドを使用して、
+前のゲームと現在のゲームセッション間で 同じ `entity_id` が同じゲームオブジェクトを表すことを保証します。
+
+```python
+## セッション1
+a = world.create_entity() # -> 0
+b = world.create_entity() # -> 1
+c = world.create_entity() # -> 2
+world.add_components_to_entity(c, Relation, friends=[b])
+## aを削除
+world.remove_entity(a)
+```
+
+```python
+## セッション2
+max_entity_id = 0
+for entity_id, data in loaded_data:
+    world.create_entity(entity_id=entity_id) # セッション間で同じ `entity_id` が同じゲームオブジェクトを表すことを保証します。
+    for component_name, component_data in data["components"].items():
+        component_class = globals()[component_name]
+        world.add_component_to_entity(entity_id, component_class, **component_data)
+    max_entity_id = max(max_entity_id, entity_id)
+... # ロード後
+world.set_next_entity_id(max_entity_id + 1) # `entity_id` の競合を防ぐ
+```
+
+実際のゲームプロジェクトでの使用例を確認したい場合は、Pigframe を使用した極めてシンプルなプロジェクトを以下にリストアップしています。
+
+#### 使用例
 | ゲームエンジン | 例 | 内容 |
 | ---- | ----| ---- |
-| Pyxel | [Super simple 2D shooting](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_2d_shooting) | examples of system, event, component, actions and world implementations. |
-| Pygame | [Demo of player's controlling a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | examples of system, event, component and world implementations. |
-| Pyxel | [Demo of player's controlling a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | examples of system, event, component and world implementations. |
+| Pyxel | [2D shooting game](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_2d_shooting) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
+| Pygame | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pygame_control_a_ball) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
+| Pyxel | [control a ball](https://github.com/passive-radio/pigframe/tree/main/src/pigframe/examples/pyxel_control_a_ball) | システム、イベント、コンポーネント、エンティティー、ワールドの実装例 |
 
 ### コントリビューティング:
 バグレポート、機能リクエスト、コードの貢献など、Pigframe をより良いライブラリにするためのどんなインプットも貴重だと考えます。どのような形であれ PR, issue を歓迎します。
