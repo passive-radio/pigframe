@@ -5,25 +5,23 @@
 
 <b>[日本語版 README](docs/README-ja.md)</b>
 
-<b>Pigframe</b> is a minimum ECS (Entity Component System) library for any Python-based game dev project. While I think it's quite rare to want to adopt ECS for game development in Python, I created this library because there wasn't an open-source library (at the time I started development) that provided both ECS and state management as a single package.
+<b>Pigframe</b> is a minimum ECS (Entity Component System) library for any Python-based game dev project. While I think it's quite rare to want to adopt ECS for game development in Python, I created this library because there wasn't an open-source library (at the time I started development) that provide both ECS and scene manager features in a single package.
+
+I believe there are quite a few independent developers who would appreciate a framework with these features:
 
 ### Key Features:
-- <b>Component-Based Architecture</b>: Pigframe adopts a component-based approach, allowing for modular and scalable game development. This architecture facilitates easy addition, modification, and management of game elements.
+- <b>ECS (Entity Component System) library</b> that manages all game elements as integer object IDs and data, allowing for complete separation of logic. This module is compatible with any other game engines. Using witn Python friendly game engines is recommended. 
+- <b>Reasonably Functional Scene Manager</b> that exists as a separate system
+- <b>Provide Abstraction layer that handles engine-dependent physics systems</b>
 
-- <b>Intuitive Scene Management</b>: Manage game scenes seamlessly with Pigframe's intuitive scene transition and control system. This feature allows for smooth transitions and efficient scene organization.
-
-- <b>Efficient Entity-Component System</b>: At the heart of Pigframe is an efficient entity-component system (ECS), which promotes a clean separation of concerns and enhances performance.
-
-- <b>Pythonic Simplicity</b>: Designed with Python's philosophy of simplicity and readability, Pigframe is ideal for those learning game development or individual developers seeking an accessible yet powerful tool.
-
-- <b>Versatile Integration</b>: Pigframe is optimized to work seamlessly with popular Python game libraries like Pyxel and Pygame, making it a perfect choice for diverse and creative game development projects.
+These features combined can make game development significantly more manageable for individual developers.
 
 ### Getting Started:
 To get started with Pigframe, simply install the `pigframe` from PyPI.
 Pigframe has no dependencies.
 
 ```bash
-pip install pigframe # pigframe has no dependencies.
+pip install -U pigframe # pigframe has no dependencies.
 ```
 
 ### How to use:
