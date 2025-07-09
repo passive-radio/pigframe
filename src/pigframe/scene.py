@@ -2,16 +2,18 @@
 This module contains the scene manager class.
 """
 
-from typing import TypeVar
+from typing import Any, Type, Callable, TYPE_CHECKING
 
-_T_event = TypeVar('_T_event')
+if TYPE_CHECKING:
+    from .event import Event
+
 
 class SceneManager():
     """scene manager class.
     """
     def __init__(self) -> None:
-        self.__scenes_events: dict[dict] = {}
-        self.__scenes_map: dict[dict] = {}
+        self.__scenes_events: dict[str, dict[Type["Event"], dict[str, Any]]] = {}
+        self.__scenes_map: dict[str, dict[str, Any]] = {}
         self.current_scene = None
         self.next_scene = None
         self.prev_scene = None
@@ -41,7 +43,7 @@ class SceneManager():
             self.__scenes_events.update({scene: {}})
             self.__scenes_map.update({scene: {}})
     
-    def add_scene_event(self, scene: str, event_type: _T_event, triger: callable) -> None:
+    def add_scene_event(self, scene: str, event_type: Type["Event"], triger: Callable) -> None:
         """Add event to the scene.
 
         Parameters
@@ -58,7 +60,7 @@ class SceneManager():
         
         self.__scenes_events[scene].update({event_type: {"triger": triger, "run": 0}})
         
-    def add_scene_transition(self, scene_from: str, scene_to: str, triger: callable) -> None:
+    def add_scene_transition(self, scene_from: str, scene_to: str, triger: Callable) -> None:
         """Add transition between scenes.
 
         Parameters
@@ -75,7 +77,7 @@ class SceneManager():
         
         self.__scenes_map[scene_from].update({scene_to: triger})
         
-    def update_scene_event(self, scene: str, event_type: _T_event, run: int):
+    def update_scene_event(self, scene: str, event_type: Type["Event"], run: int):
         """Update event run.
 
         Parameters
@@ -99,6 +101,8 @@ class SceneManager():
     def __process_events(self):
         """Process events.
         """
+        if self.current_scene is None:
+            return
         if self.__scenes_events.get(self.current_scene) is None:
             return
         for event, event_data in self.__scenes_events[self.current_scene].items():
@@ -108,6 +112,8 @@ class SceneManager():
     def __process_transitions(self):
         """Process transitions.
         """
+        if self.current_scene is None:
+            return
         if self.__scenes_map.get(self.current_scene) is None:
             return
         for scene, triger in self.__scenes_map[self.current_scene].items():
@@ -118,9 +124,10 @@ class SceneManager():
     def update_scene(self):
         """Update current scene.
         """
-        self.prev_scene = self.current_scene
         if self.next_scene is not None:
+            self.prev_scene = self.current_scene
             self.current_scene = self.next_scene
+            self.next_scene = None
 
     @property
     def transitions(self):

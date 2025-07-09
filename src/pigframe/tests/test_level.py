@@ -3,7 +3,7 @@ from pigframe import Event
 
 
 class Event1(Event):
-    def _Event__process(self):
+    def __process(self):
         pass
 
 

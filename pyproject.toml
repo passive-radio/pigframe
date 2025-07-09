@@ -8,3 +8,23 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools_scm]
 write_to = "src/pigframe/_version.py"
 
+[tool.pytest.ini_options]
+testpaths = ["src"]
+python_files = "test_*.py"
+addopts = "--cov=pigframe"
+
+[tool.coverage.run]
+source = ["pigframe"]
+omit = ["*/tests/*", "*/__init__.py", "*/_version.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError",
+]
+
