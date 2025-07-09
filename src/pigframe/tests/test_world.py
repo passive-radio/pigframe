@@ -1,15 +1,15 @@
-from pigframe import World, System, Screen
+from pigframe import World, System, Screen, Component
 from dataclasses import dataclass
 
 
 @dataclass
-class Position:
+class Position(Component):
     x: int
     y: int
 
 
 @dataclass
-class Velocity:
+class Velocity(Component):
     x: int
     y: int
 
@@ -49,8 +49,10 @@ def test_component():
     ent1 = world.create_entity()
     world.add_component_to_entity(ent1, Position, x=10, y=20)
     world.add_component_to_entity(ent1, Velocity, x=1, y=2)
-    assert world.get_entity_object(ent1)[Position] == Position(x=10, y=20)
-    assert world.get_entity_object(ent1)[Velocity] == Velocity(x=1, y=2)
+    entity_object = world.get_entity_object(ent1)
+    assert entity_object is not None
+    assert entity_object[Position] == Position(x=10, y=20)
+    assert entity_object[Velocity] == Velocity(x=1, y=2)
     assert world.component_exist(Position) is True
     assert world.component_exist(Velocity) is True
     assert world.has_component(ent1, Position) is True

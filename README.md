@@ -5,7 +5,7 @@
 
 <b>[日本語版 README](docs/README-ja.md)</b>
 
-<b>Pigframe</b> is a minimum ECS (Entity Component System) library for any Python-based game dev project. While I think it's quite rare to want to adopt ECS for game development in Python, I created this library because there wasn't an open-source library (at the time I started development) that provide both ECS and scene manager features in a single package.
+<b>Pigframe</b> is a minimum ECS (Entity Component System) library for any Python-based game dev project. While I think it's quite rare to want to adopt ECS for game development in Python, I created this library because there wasn't an open-source library (at the time I started development) that provide ECS, scene manager and save/load features in a single package.
 
 I believe there are quite a few independent developers who would appreciate a framework with these features:
 
@@ -13,6 +13,7 @@ I believe there are quite a few independent developers who would appreciate a fr
 - <b>ECS (Entity Component System) library</b> that manages all game elements as integer object IDs and data, allowing for complete separation of logic. This module is compatible with any other game engines. Using witn Python friendly game engines is recommended. 
 - <b>Reasonably Functional Scene Manager</b> that exists as a separate system
 - <b>Provide Abstraction layer that handles engine-dependent physics systems</b>
+- <b>Save/Load game data</b>
 
 These features combined can make game development significantly more manageable for individual developers.
 
@@ -196,6 +197,12 @@ pip install -U pigframe # pigframe has no dependencies.
         
         def draw(self):
             self.process_screens()
+    ```
+
+- save/load game data
+    ```python
+    app.save_game("game_data.json")
+    app.load_game("game_data.json")
     ```
 
 when some components' parameters are entity_id and you want to load saved data which had been created by the previous game, you can put entity_id to create_entity method and use set_next_entity_id method of World class to ensure the same entity_id represents the same game object between the previous game and the current game sessions.

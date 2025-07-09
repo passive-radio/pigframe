@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from pigframe.world import World, Component
+from pigframe import World, Component
 
 @dataclass
 class Position(Component):
@@ -26,4 +26,5 @@ def test():
     app.remove_components_from_entity(ent, Position, Velocity)
     print(app.get_entity_object(ent))
 
-test()
+if __name__ == "__main__":
+    test()
